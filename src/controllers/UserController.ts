@@ -2,14 +2,9 @@ import { Controller, Get,Post } from 'routing-controllers';
 import * as Swagger from 'swagger-client';
 import CITASDK from '@cryptape/cita-sdk'
 import * as config from 'config';
+import { logger } from '../common/logging';
 
-const peerUrl = config.get('Peer.Url').toString();
-console.log("peerUrl:",peerUrl);
-const infolevel = config.get('LogLevel').toString();
-console.log("infolevel:",infolevel);
-
-
-const citaSDK = CITASDK('http://localhost:1337')
+const citaSDK = CITASDK(config.get('Peer.Url').toString());
 
 @Controller("/user")
 export class Users {
@@ -19,6 +14,8 @@ export class Users {
             url: 'http://petstore.swagger.io/v2/swagger.json',
             usePromise: true
         });
+
+        logger.info(`client url `,`http://petstore.swagger.io/v2/swagger.json`);
     }
 
     @Get('/')
