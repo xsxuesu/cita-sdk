@@ -21,17 +21,15 @@ const routing_controllers_1 = require("routing-controllers");
 const Swagger = require("swagger-client");
 const cita_sdk_1 = require("@cryptape/cita-sdk");
 const config = require("config");
-const peerUrl = config.get('Peer.Url').toString();
-console.log("peerUrl:", peerUrl);
-const infolevel = config.get('LogLevel').toString();
-console.log("infolevel:", infolevel);
-const citaSDK = cita_sdk_1.default('http://localhost:1337');
+const logging_1 = require("../common/logging");
+const citaSDK = cita_sdk_1.default(config.get('Peer.Url').toString());
 let Users = class Users {
     constructor() {
         this.client = new Swagger({
             url: 'http://petstore.swagger.io/v2/swagger.json',
             usePromise: true
         });
+        logging_1.logger.info(`client url `, `http://petstore.swagger.io/v2/swagger.json`);
     }
     get() {
         return __awaiter(this, void 0, void 0, function* () {
