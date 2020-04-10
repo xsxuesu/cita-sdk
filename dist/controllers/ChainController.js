@@ -21,54 +21,146 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const routing_controllers_1 = require("routing-controllers");
-const cita_sdk_1 = require("@cryptape/cita-sdk");
+const Peer = require("../config/Peer");
 const config = require("config");
 const logging_1 = require("../common/logging");
 let ChainController = class ChainController {
     constructor() {
-        this.peer = cita_sdk_1.default(config.get('Peer.Url').toString());
+        let SDK = new Peer.Peer();
+        this.peer = SDK.peer;
         logging_1.logger.info(`had connected on peer : ${config.get('Peer.Url').toString()}`);
     }
-    getPeerCount(request, response) {
+    getPeerCount() {
         return __awaiter(this, void 0, void 0, function* () {
-            return response.json({ "peerCount": this.peer.base.peerCount() });
+            let peerCount = yield this.peer.base.peerCount();
+            logging_1.logger.info(`PEER COUNT : ${peerCount}`);
+            return { "peerCount": peerCount };
         });
     }
-    getMetaData(request, response) {
+    getMetaData() {
         return __awaiter(this, void 0, void 0, function* () {
-            return response.json({ "metaData": this.peer.base.getMetaData() });
+            let metaData = yield this.peer.base.getMetaData();
+            return { "metaData": metaData };
         });
     }
-    getAbi(contract, response) {
+    getAbi(contract) {
         return __awaiter(this, void 0, void 0, function* () {
             logging_1.logger.info("get abi contract address:", contract);
-            return response.json({ "abi": this.peer.base.getAbi(contract, 'latest') });
+            let abi = yield this.peer.base.getAbi(contract, 'latest');
+            return { "abi": abi };
+        });
+    }
+    getBalance(address) {
+        return __awaiter(this, void 0, void 0, function* () {
+            logging_1.logger.info("get balance address:", address);
+            let balance = yield this.peer.base.getBalance(address);
+            return { "balance": balance };
+        });
+    }
+    getBlock(index) {
+        return __awaiter(this, void 0, void 0, function* () {
+            logging_1.logger.info("get block index:", index);
+            let blockinfo = yield this.peer.base.getBlockByNumber(index);
+            return { "blockinfo": blockinfo };
+        });
+    }
+    getBlockByHash(hash) {
+        return __awaiter(this, void 0, void 0, function* () {
+            logging_1.logger.info("get block hash:", hash);
+            let blockinfo = yield this.peer.base.getBlockByHash(hash);
+            return { "blockinfo": blockinfo };
+        });
+    }
+    getBlockNumber() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let blockNumber = yield this.peer.base.getBlockNumber();
+            return { "blockNumber": blockNumber };
+        });
+    }
+    getTransactionCount(hash) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let txCount = yield this.peer.base.getTransactionCount(hash);
+            return { "transactionCount": txCount };
+        });
+    }
+    postSign(address, message) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let signMessage = yield this.peer.base.sign(message, address);
+            return { "signedMessage": signMessage };
         });
     }
 };
 __decorate([
     routing_controllers_1.Get('/peercount'),
-    __param(0, routing_controllers_1.Req()), __param(1, routing_controllers_1.Res()),
+    routing_controllers_1.ContentType("application/json"),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], ChainController.prototype, "getPeerCount", null);
 __decorate([
     routing_controllers_1.Get('/metadata'),
-    __param(0, routing_controllers_1.Req()), __param(1, routing_controllers_1.Res()),
+    routing_controllers_1.ContentType("application/json"),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], ChainController.prototype, "getMetaData", null);
 __decorate([
     routing_controllers_1.Get('/getabi/:contract'),
-    __param(0, routing_controllers_1.Param("contract")), __param(1, routing_controllers_1.Res()),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.Param("contract")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], ChainController.prototype, "getAbi", null);
+__decorate([
+    routing_controllers_1.Get('/getbalance/:address'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.Param("address")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ChainController.prototype, "getBalance", null);
+__decorate([
+    routing_controllers_1.Get('/getblock/:index'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.Param("index")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], ChainController.prototype, "getBlock", null);
+__decorate([
+    routing_controllers_1.Get('/getblockbyhash/:hash'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.Param("hash")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ChainController.prototype, "getBlockByHash", null);
+__decorate([
+    routing_controllers_1.Get('/getblocknumber'),
+    routing_controllers_1.ContentType("application/json"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], ChainController.prototype, "getBlockNumber", null);
+__decorate([
+    routing_controllers_1.Get('/gettxcount/:hash'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.Param("hash")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ChainController.prototype, "getTransactionCount", null);
+__decorate([
+    routing_controllers_1.Post('/sign'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("address")), __param(1, routing_controllers_1.BodyParam("message")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], ChainController.prototype, "postSign", null);
 ChainController = __decorate([
-    routing_controllers_1.Controller("/chain"),
+    routing_controllers_1.JsonController("/chain"),
     __metadata("design:paramtypes", [])
 ], ChainController);
 exports.ChainController = ChainController;

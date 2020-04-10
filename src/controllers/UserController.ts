@@ -1,27 +1,21 @@
-import { Controller, Get,Post } from 'routing-controllers';
-import * as Swagger from 'swagger-client';
-import CITASDK from '@cryptape/cita-sdk'
+import {Post,BodyParam ,JsonController,ContentType} from 'routing-controllers';
 import * as config from 'config';
+import * as Peer from '../config/Peer';
 import { logger } from '../common/logging';
 
-const citaSDK = CITASDK(config.get('Peer.Url').toString());
-
-@Controller("/user")
+@JsonController("/personal")
 export class Users {
-    client: any;
+    peer: any;
     constructor() {
-        this.client = new Swagger({
-            url: 'http://petstore.swagger.io/v2/swagger.json',
-            usePromise: true
-        });
-
-        logger.info(`client url `,`http://petstore.swagger.io/v2/swagger.json`);
+        let SDK = new Peer.Peer();
+        this.peer = SDK.peer;
+        logger.info(`had connected on peer : ${config.get('Peer.Url').toString()}`);
     }
 
-    @Get('/')
-    async get(): Promise<any> {
-        let client = await this.client;
-        let user = await client.user.getUserByName({ username: "user1"});
-        return user;        
+    @Post('/sign')
+    @ContentType("application/json")
+    async signMessage(@BodyParam("address") address: string,@BodyParam("message") message: string, @BodyParam("password") password: string) {
+        let singedMessage = await this.peer.base.personal.sign(message, address,password);
+        return {"singedMessage":singedMessage}; 
     }
 }
