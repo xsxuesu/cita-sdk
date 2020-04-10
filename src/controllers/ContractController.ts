@@ -35,6 +35,7 @@ export class ContractController {
           // deploy contract and get transaction result
         const txRes = await newContract.deploy({data: bytecode,arguments: [],}).send(transaction);
           // get transaction receipt by transaction hash
+          //listeners.listenToTransactionReceipt(result.hash).then(console.log)
         const receipt = await this.peer.listeners.listenToTransactionReceipt(txRes.hash);
           // set contract address to contract instance
         newContract.options.address = receipt.contractAddress;

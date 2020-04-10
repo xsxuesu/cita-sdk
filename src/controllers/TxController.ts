@@ -48,8 +48,6 @@ export class TxController {
         return sendMessage ;    
     }
 
-
-
     @Get('/getreceipt/:txhash')
     @ContentType("application/json")
     async getTxReceipt(@Param("txhash") txhash: string) {
@@ -63,7 +61,6 @@ export class TxController {
         let receipt = await this.peer.base.getTransactionProof(txhash);
         return receipt;    
     }
-
 
     @Get('/gettx/:txhash')
     @ContentType("application/json")

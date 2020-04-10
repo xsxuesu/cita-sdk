@@ -123,4 +123,13 @@ export class ChainController {
         let result = await this.peer.base.deleteMessageFilter(id)
         return {"hadDelete":result,"filterId":id} ;  
     }
+
+    @Post('/signtx')
+    @ContentType("application/json")
+    async signTrsaction(@BodyParam("trasaction") tx: any){
+        let result = await this.peer.base.signer(tx);
+        return {"signedTrasaction":result} ;  
+    }
+
+    
 }
