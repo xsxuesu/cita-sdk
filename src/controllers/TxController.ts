@@ -2,6 +2,9 @@ import { Get,Post,Param,BodyParam, JsonController,ContentType} from 'routing-con
 import * as Peer from '../config/Peer';
 import * as config from 'config';
 import { logger } from '../common/logging';
+import * as path from 'path';
+import * as fs from 'fs';
+
 
 @JsonController("/tx")
 export class TxController {

@@ -24,76 +24,97 @@ const routing_controllers_1 = require("routing-controllers");
 const Peer = require("../config/Peer");
 const config = require("config");
 const logging_1 = require("../common/logging");
+const path = require("path");
+const fs = require("fs");
 let ContractController = class ContractController {
     constructor() {
         let SDK = new Peer.Peer();
         this.peer = SDK.peer;
         logging_1.logger.info(`had connected on peer : ${config.get('Peer.Url').toString()}`);
     }
-    deployContract(abi, code, from, chainId) {
+    deployContract(contractname, from, password) {
         return __awaiter(this, void 0, void 0, function* () {
-            const abiJson = JSON.parse(abi);
-            const bytecode = code;
-            const privateKey = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+            // logger.info(`contractname : ${contractname}`);
+            const contractPath = path.join("./contract", contractname);
+            // logger.info(`contractinfo : ${fs.readFileSync(contractPath).toString()}`);
+            const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+            // logger.info(`contractinfo : ${contractinfo}`);
+            const abiJson = contractinfo.abi;
+            const bytecode = contractinfo.bytecode;
+            // const result = this.peer.base.personal.unlockAccount(from, password);
+            const newContract = new this.peer.base.Contract(abiJson);
+            const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
+            const metaData = yield this.peer.base.getMetaData();
+            logging_1.logger.info(`metaData : ${JSON.stringify(metaData)}`);
+            const blockNumber = yield this.peer.base.getBlockNumber();
+            //chainId: metaData.chainId,
+            //
             const transaction = {
                 from: from,
-                privateKey,
+                privateKey: privateKey,
                 nonce: 999999,
-                quota: 1e10,
-                chainId: chainId,
-                version: 2,
-                validUntilBlock: 999999,
+                quota: 999999,
+                version: metaData.version,
+                validUntilBlock: blockNumber + 70,
                 value: '0x0',
             };
-            // create contract instance
-            const newContract = new this.peer.base.Contract(abiJson);
-            // deploy contract and get transaction result
             const txRes = yield newContract.deploy({ data: bytecode, arguments: [], }).send(transaction);
-            // get transaction receipt by transaction hash
-            //listeners.listenToTransactionReceipt(result.hash).then(console.log)
+            // const privateKey = '0xe45101cbb6f63219be644ec0592e199d0928c33d1fc3cbaf86db7153dcf0a2df'
             const receipt = yield this.peer.listeners.listenToTransactionReceipt(txRes.hash);
             // set contract address to contract instance
             newContract.options.address = receipt.contractAddress;
             return { "contractAddress": receipt.contractAddress };
         });
     }
-    callContract(abi, contract, from) {
+    callContract(contractname, contract, from) {
         return __awaiter(this, void 0, void 0, function* () {
-            const abijson = JSON.parse(abi);
-            const con = new this.peer.base.Contract(abijson, contract);
-            // call method
-            // get method is specified by contract through abi
-            // contract.methods.myMethod(paramters).call(transaction)
-            // get transaction receipt by transaction hash
+            const contractPath = path.join("./contract", contractname);
+            const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+            // logger.info(`contractinfo : ${contractinfo}`);
+            const abiJson = contractinfo.abi;
+            const con = new this.peer.base.Contract(abiJson, contract);
             const receipt = yield con.methods.get().call({ from: from });
-            return receipt;
+            return { "receipt": receipt };
         });
     }
-    sendContract(abi, contract, from) {
+    sendContract(contractname, contract, from) {
         return __awaiter(this, void 0, void 0, function* () {
-            const abijson = JSON.parse(abi);
-            const con = new this.peer.base.Contract(abijson, contract);
-            // send method
-            // set method is specified by contract through abi
+            const contractPath = path.join("./contract", contractname);
+            const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+            // logger.info(`contractinfo : ${contractinfo}`);
+            const abiJson = contractinfo.abi;
             // contract.methods.myMethod(parameters).send(transaction)
-            const receipt = yield con.methods.set().send({ from: from });
-            return receipt;
+            const con = new this.peer.base.Contract(abiJson, contract);
+            const blockNumber = yield this.peer.base.getBlockNumber();
+            const metaData = yield this.peer.base.getMetaData();
+            logging_1.logger.info(`metaData : ${JSON.stringify(metaData)}`);
+            const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
+            const transaction = {
+                from: from,
+                privateKey: privateKey,
+                nonce: 999999,
+                quota: 999999,
+                version: metaData.version,
+                validUntilBlock: blockNumber + 30,
+                value: '0x0',
+            };
+            const receipt = yield con.methods.set(blockNumber).send(transaction);
+            return { "receipt": receipt };
         });
     }
 };
 __decorate([
     routing_controllers_1.Post('/deploy'),
     routing_controllers_1.ContentType("application/json"),
-    __param(0, routing_controllers_1.Param("abi")), __param(1, routing_controllers_1.Param("code")), __param(2, routing_controllers_1.Param("from")),
-    __param(3, routing_controllers_1.Param("chainId")),
+    __param(0, routing_controllers_1.BodyParam("contract")), __param(1, routing_controllers_1.BodyParam("from")), __param(2, routing_controllers_1.BodyParam("password")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String, String]),
+    __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], ContractController.prototype, "deployContract", null);
 __decorate([
     routing_controllers_1.Post('/call'),
     routing_controllers_1.ContentType("application/json"),
-    __param(0, routing_controllers_1.Param("abi")), __param(1, routing_controllers_1.Param("contract")), __param(2, routing_controllers_1.Param("from")),
+    __param(0, routing_controllers_1.BodyParam("contractname")), __param(1, routing_controllers_1.BodyParam("contractadd")), __param(2, routing_controllers_1.BodyParam("from")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
@@ -101,7 +122,7 @@ __decorate([
 __decorate([
     routing_controllers_1.Post('/send'),
     routing_controllers_1.ContentType("application/json"),
-    __param(0, routing_controllers_1.Param("abi")), __param(1, routing_controllers_1.Param("contract")), __param(2, routing_controllers_1.Param("from")),
+    __param(0, routing_controllers_1.BodyParam("contractname")), __param(1, routing_controllers_1.BodyParam("contractadd")), __param(2, routing_controllers_1.BodyParam("from")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)

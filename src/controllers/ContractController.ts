@@ -2,6 +2,8 @@ import { Get,Post,Param,BodyParam, JsonController,ContentType} from 'routing-con
 import * as Peer from '../config/Peer';
 import * as config from 'config';
 import { logger } from '../common/logging';
+import * as path from 'path';
+import * as fs from 'fs';
 
 @JsonController("/contract")
 export class ContractController {
@@ -14,28 +16,41 @@ export class ContractController {
 
     @Post('/deploy')
     @ContentType("application/json")
-    async deployContract(@Param("abi") abi: string,@Param("code") code:string,@Param("from") from:string,
-    @Param("chainId") chainId: string
+    async deployContract(@BodyParam("contract") contractname:string,@BodyParam("from") from:string,@BodyParam("password") password:string
     ) {
-        const abiJson  = JSON.parse(abi);
-        const bytecode = code ;
-        const privateKey = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'
-        const transaction = {
-            from: from,
-            privateKey,
-            nonce: 999999,
-            quota: 1e10,
-            chainId: chainId,
-            version: 2,
-            validUntilBlock: 999999,
-            value: '0x0',
-          }
-          // create contract instance
+        // logger.info(`contractname : ${contractname}`);
+        const contractPath = path.join("./contract",contractname);
+        // logger.info(`contractinfo : ${fs.readFileSync(contractPath).toString()}`);
+        const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+        // logger.info(`contractinfo : ${contractinfo}`);
+        const abiJson  = contractinfo.abi;
+        const bytecode = contractinfo.bytecode;
+
+        // const result = this.peer.base.personal.unlockAccount(from, password);
         const newContract = new this.peer.base.Contract(abiJson);
-          // deploy contract and get transaction result
+        const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
+
+        const metaData = await this.peer.base.getMetaData();
+        logger.info(`metaData : ${JSON.stringify(metaData)}`);
+
+        const blockNumber = await this.peer.base.getBlockNumber();
+        //chainId: metaData.chainId,
+        //
+        const transaction = {
+          from: from,
+          privateKey:privateKey,
+          nonce: 999999,
+          quota: 999999,
+          version: metaData.version,
+          validUntilBlock: blockNumber+70,
+          value: '0x0',
+        };
+
         const txRes = await newContract.deploy({data: bytecode,arguments: [],}).send(transaction);
-          // get transaction receipt by transaction hash
-          //listeners.listenToTransactionReceipt(result.hash).then(console.log)
+
+        // const privateKey = '0xe45101cbb6f63219be644ec0592e199d0928c33d1fc3cbaf86db7153dcf0a2df'
+        
+
         const receipt = await this.peer.listeners.listenToTransactionReceipt(txRes.hash);
           // set contract address to contract instance
         newContract.options.address = receipt.contractAddress;
@@ -46,28 +61,48 @@ export class ContractController {
 
     @Post('/call')
     @ContentType("application/json")
-    async callContract(@Param("abi") abi: string,@Param("contract") contract:string,@Param("from") from:string){
-        const abijson = JSON.parse(abi);
-        const con = new this.peer.base.Contract(abijson, contract)
-          
-          // call method
-          // get method is specified by contract through abi
-          // contract.methods.myMethod(paramters).call(transaction)
-          // get transaction receipt by transaction hash
-        const receipt = await con.methods.get().call({from:from})
+    async callContract(@BodyParam("contractname") contractname: string,@BodyParam("contractadd") contract:string,@BodyParam("from") from:string){
+      const contractPath = path.join("./contract",contractname);
+
+      const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+      // logger.info(`contractinfo : ${contractinfo}`);
+      const abiJson  = contractinfo.abi;
+
+      const con = new this.peer.base.Contract(abiJson, contract);
+
+      const receipt = await con.methods.get().call({from:from})
         
-        return receipt
+      return {"receipt":receipt};
     }
 
     @Post('/send')
     @ContentType("application/json")
-    async sendContract(@Param("abi") abi: string,@Param("contract") contract:string,@Param("from") from:string){
-        const abijson = JSON.parse(abi);
-        const con = new this.peer.base.Contract(abijson, contract)
-        // send method
-        // set method is specified by contract through abi
+    async sendContract(@BodyParam("contractname") contractname: string,@BodyParam("contractadd") contract:string,@BodyParam("from") from:string){
+      const contractPath = path.join("./contract",contractname);
+      const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+      // logger.info(`contractinfo : ${contractinfo}`);
+      const abiJson  = contractinfo.abi;
         // contract.methods.myMethod(parameters).send(transaction)
-        const receipt = await con.methods.set().send({from:from})
-        return receipt
+
+      const con = new this.peer.base.Contract(abiJson, contract);
+
+      const blockNumber = await this.peer.base.getBlockNumber();
+      const metaData = await this.peer.base.getMetaData();
+      logger.info(`metaData : ${JSON.stringify(metaData)}`);
+      const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
+
+      const transaction = {
+        from: from,
+        privateKey:privateKey,
+        nonce: 999999,
+        quota: 999999,
+        version: metaData.version,
+        validUntilBlock: blockNumber+30,
+        value: '0x0',
+      };
+
+      const receipt = await con.methods.set(blockNumber).send(transaction);
+      
+      return {"receipt":receipt};
     }
 }

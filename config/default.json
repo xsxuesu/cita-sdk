@@ -10,7 +10,9 @@
         "jwt_secret": "supersecret"
     },
     "Peer": {
-      "Url": "http://10.60.178.53:1337"
+      "Url": "http://127.0.0.1:1337"
     },
-    "LogLevel": "info"
+    "LogLevel": "info",
+    "adminAddress":"0x20e7301a089e246B060c472e1fF9c3Bb205D75A8",
+    "adminPrivateKey":"0x525c90ebf2dd0f1a6ca49c351a357a04d0633078b6de4b2a34bf48428863368d"
   }

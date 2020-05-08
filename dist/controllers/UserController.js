@@ -30,10 +30,26 @@ let Users = class Users {
         this.peer = SDK.peer;
         logging_1.logger.info(`had connected on peer : ${config.get('Peer.Url').toString()}`);
     }
+    //0x12707fDE828feD188970a5Bb06f8F5B507A6f735
+    //0xf809356dc8b9dd8f445906726ee30b898b4302854f219e4a5c053acc0b5eee23
     signMessage(address, message, password) {
         return __awaiter(this, void 0, void 0, function* () {
             let singedMessage = yield this.peer.base.personal.sign(message, address, password);
             return { "singedMessage": singedMessage };
+        });
+    }
+    createAddress(password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let result = yield this.peer.base.accounts.create(password);
+            logging_1.logger.info(`create address : ${JSON.stringify(result)}`);
+            return { "address": result.address, "privateKey": result.privateKey };
+        });
+    }
+    unlockAddress(address, password) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const result = this.peer.base.accounts.unlockAccount(address, password);
+            logging_1.logger.info(`create address : ${JSON.stringify(result)}`);
+            return { "result": result };
         });
     }
 };
@@ -45,6 +61,22 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], Users.prototype, "signMessage", null);
+__decorate([
+    routing_controllers_1.Post('/create'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("password")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], Users.prototype, "createAddress", null);
+__decorate([
+    routing_controllers_1.Post('/unlock'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("address")), __param(1, routing_controllers_1.BodyParam("password")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], Users.prototype, "unlockAddress", null);
 Users = __decorate([
     routing_controllers_1.JsonController("/personal"),
     __metadata("design:paramtypes", [])

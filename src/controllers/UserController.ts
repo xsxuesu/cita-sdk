@@ -19,4 +19,21 @@ export class Users {
         let singedMessage = await this.peer.base.personal.sign(message, address,password);
         return {"singedMessage":singedMessage}; 
     }
+
+    @Post('/create')
+    @ContentType("application/json")
+    async createAddress(@BodyParam("password") password: string) {
+        let result = await this.peer.base.accounts.create(password);
+        logger.info(`create address : ${JSON.stringify(result)}`);
+        return {"address":result.address,"privateKey":result.privateKey}; 
+    }
+
+    @Post('/unlock')
+    @ContentType("application/json")
+    async unlockAddress(@BodyParam("address") address: string, @BodyParam("password") password: string) {
+        const result = this.peer.base.accounts.unlockAccount(address, password);
+        logger.info(`create address : ${JSON.stringify(result)}`);
+        return {"result":result}; 
+    }
+
 }

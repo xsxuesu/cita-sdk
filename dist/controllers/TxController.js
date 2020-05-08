@@ -30,6 +30,8 @@ let TxController = class TxController {
         this.peer = SDK.peer;
         logging_1.logger.info(`had connected on peer : ${config.get('Peer.Url').toString()}`);
     }
+    //0x12707fDE828feD188970a5Bb06f8F5B507A6f735
+    //0xf809356dc8b9dd8f445906726ee30b898b4302854f219e4a5c053acc0b5eee23
     getBalance(address) {
         return __awaiter(this, void 0, void 0, function* () {
             logging_1.logger.info("get balance address:", address);
