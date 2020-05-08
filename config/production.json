@@ -1,6 +1,6 @@
 {
     "Peer": {
-      "Url": "http://localhost:1337"
+      "Url": "http://10.60.178.53:1337"
     },
     "LogLevel": "error"
 }

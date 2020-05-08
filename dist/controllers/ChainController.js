@@ -50,13 +50,6 @@ let ChainController = class ChainController {
             return { "abi": abi };
         });
     }
-    getBalance(address) {
-        return __awaiter(this, void 0, void 0, function* () {
-            logging_1.logger.info("get balance address:", address);
-            let balance = yield this.peer.base.getBalance(address);
-            return { "balance": balance };
-        });
-    }
     getBlock(index) {
         return __awaiter(this, void 0, void 0, function* () {
             logging_1.logger.info("get block index:", index);
@@ -77,16 +70,70 @@ let ChainController = class ChainController {
             return { "blockNumber": blockNumber };
         });
     }
-    getTransactionCount(hash) {
+    getLogs(abi, filter) {
         return __awaiter(this, void 0, void 0, function* () {
-            let txCount = yield this.peer.base.getTransactionCount(hash);
-            return { "transactionCount": txCount };
+            // const abi = [
+            //     {
+            //       indexed: false,
+            //       name: '_sender',
+            //       type: 'address',
+            //     },
+            //     {
+            //       indexed: false,
+            //       name: '_text',
+            //       type: 'string',
+            //     },
+            //     {
+            //       indexed: true,
+            //       name: '_time',
+            //       type: 'uint256',
+            //     },
+            //   ]
+            //   const filter = {
+            //     address: '0x35bD452c37d28becA42097cFD8ba671C8DD430a1',
+            //     fromBlock: '0x0',
+            //   }
+            let logs = yield this.peer.base.getLogs(filter, abi);
+            return logs;
         });
     }
-    postSign(address, message) {
+    newMsgFilter(topics) {
         return __awaiter(this, void 0, void 0, function* () {
-            let signMessage = yield this.peer.base.sign(message, address);
-            return { "signedMessage": signMessage };
+            // const topics = {
+            //     topics: ['0x8fb1356be6b2a4e49ee94447eb9dcb8783f51c41dcddfe7919f945017d163bf3'],
+            //   }
+            let fileterId = yield this.peer.base.newMessageFilter(topics);
+            return { "fileterId": fileterId };
+        });
+    }
+    newBlockFilter() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let fileterId = yield this.peer.base.newBlockFilter();
+            return { "fileterId": fileterId };
+        });
+    }
+    getFilterChanges(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let logs = yield this.peer.base.getFilterChanges(id);
+            return logs;
+        });
+    }
+    getFilterLogs(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let logs = yield this.peer.base.getFitlerLogs(id);
+            return logs;
+        });
+    }
+    deleteMessageFilter(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let result = yield this.peer.base.deleteMessageFilter(id);
+            return { "hadDelete": result, "filterId": id };
+        });
+    }
+    signTrsaction(tx) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let result = yield this.peer.base.signer(tx);
+            return { "signedTrasaction": result };
         });
     }
 };
@@ -113,14 +160,6 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ChainController.prototype, "getAbi", null);
 __decorate([
-    routing_controllers_1.Get('/getbalance/:address'),
-    routing_controllers_1.ContentType("application/json"),
-    __param(0, routing_controllers_1.Param("address")),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], ChainController.prototype, "getBalance", null);
-__decorate([
     routing_controllers_1.Get('/getblock/:index'),
     routing_controllers_1.ContentType("application/json"),
     __param(0, routing_controllers_1.Param("index")),
@@ -144,21 +183,60 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ChainController.prototype, "getBlockNumber", null);
 __decorate([
-    routing_controllers_1.Get('/gettxcount/:hash'),
+    routing_controllers_1.Post('/getlogs'),
     routing_controllers_1.ContentType("application/json"),
-    __param(0, routing_controllers_1.Param("hash")),
+    __param(0, routing_controllers_1.BodyParam("abi")), __param(1, routing_controllers_1.BodyParam("filter")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], ChainController.prototype, "getLogs", null);
+__decorate([
+    routing_controllers_1.Post('/filtermsg'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("topics")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ChainController.prototype, "newMsgFilter", null);
+__decorate([
+    routing_controllers_1.Post('/filterblock'),
+    routing_controllers_1.ContentType("application/json"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], ChainController.prototype, "newBlockFilter", null);
+__decorate([
+    routing_controllers_1.Get('/filterchanges/:id'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.Param("id")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
-], ChainController.prototype, "getTransactionCount", null);
+], ChainController.prototype, "getFilterChanges", null);
 __decorate([
-    routing_controllers_1.Post('/sign'),
+    routing_controllers_1.Get('/filterlogs/:id'),
     routing_controllers_1.ContentType("application/json"),
-    __param(0, routing_controllers_1.BodyParam("address")), __param(1, routing_controllers_1.BodyParam("message")),
+    __param(0, routing_controllers_1.Param("id")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
-], ChainController.prototype, "postSign", null);
+], ChainController.prototype, "getFilterLogs", null);
+__decorate([
+    routing_controllers_1.Get('/filterdelete/:id'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.Param("id")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], ChainController.prototype, "deleteMessageFilter", null);
+__decorate([
+    routing_controllers_1.Post('/signtx'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("trasaction")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], ChainController.prototype, "signTrsaction", null);
 ChainController = __decorate([
     routing_controllers_1.JsonController("/chain"),
     __metadata("design:paramtypes", [])
