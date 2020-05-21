@@ -43,7 +43,8 @@
     "routing-controllers": "^0.6.0-alpha.9",
     "swagger-client": "^2.1.15",
     "swagger-tools": "^0.10.1",
-    "winston": "^2.2.0"
+    "winston": "^2.2.0",
+    "web3":"^1.0.0"
   },
   "devDependencies": {
     "@types/body-parser": "0.0.29",

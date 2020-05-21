@@ -26,6 +26,7 @@ const config = require("config");
 const logging_1 = require("../common/logging");
 const path = require("path");
 const fs = require("fs");
+const web3 = require("web3");
 let ContractController = class ContractController {
     constructor() {
         let SDK = new Peer.Peer();
@@ -77,6 +78,53 @@ let ContractController = class ContractController {
             return { "receipt": receipt };
         });
     }
+    supplyContract(contractname, contract, from) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contractPath = path.join("./contract", contractname);
+            const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+            // logger.info(`contractinfo : ${contractinfo}`);
+            const abiJson = contractinfo.abi;
+            const con = new this.peer.base.Contract(abiJson, contract);
+            const receipt = yield con.methods.totalSupply().call({ from: from });
+            return { "receipt": receipt };
+        });
+    }
+    balanceContract(contractname, contract, from) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contractPath = path.join("./contract", contractname);
+            const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+            // logger.info(`contractinfo : ${contractinfo}`);
+            const abiJson = contractinfo.abi;
+            const con = new this.peer.base.Contract(abiJson, contract);
+            const receipt = yield con.methods.balanceOf(from).call({ from: from });
+            return { "receipt": receipt };
+        });
+    }
+    getnameContract(contractname, contract, from) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contractPath = path.join("./contract", contractname);
+            const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+            // logger.info(`contractinfo : ${contractinfo}`);
+            const abiJson = contractinfo.abi;
+            const con = new this.peer.base.Contract(abiJson, contract);
+            const receipt = yield con.methods.getName().call({ from: from });
+            return { "receipt": web3.utils.hexToUtf8(receipt) };
+        });
+    }
+    getstockContract(contractname, contract, from) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contractPath = path.join("./contract", contractname);
+            const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+            // logger.info(`contractinfo : ${contractinfo}`);
+            const abiJson = contractinfo.abi;
+            const con = new this.peer.base.Contract(abiJson, contract);
+            const stockinfo = yield con.methods.getStock(from).call({ from: from });
+            logging_1.logger.info(`stockinfo : ${stockinfo}`);
+            stockinfo["0"] = web3.utils.hexToUtf8(stockinfo["0"]);
+            stockinfo["1"] = web3.utils.hexToUtf8(stockinfo["1"]);
+            return { "stockinfo": stockinfo };
+        });
+    }
     sendContract(contractname, contract, from) {
         return __awaiter(this, void 0, void 0, function* () {
             const contractPath = path.join("./contract", contractname);
@@ -102,6 +150,84 @@ let ContractController = class ContractController {
             return { "receipt": receipt };
         });
     }
+    accessContract(contractname, contract, from, conaddress) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contractPath = path.join("./contract", contractname);
+            const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+            // logger.info(`contractinfo : ${contractinfo}`);
+            const abiJson = contractinfo.abi;
+            // contract.methods.myMethod(parameters).send(transaction)
+            const con = new this.peer.base.Contract(abiJson, contract);
+            const blockNumber = yield this.peer.base.getBlockNumber();
+            const metaData = yield this.peer.base.getMetaData();
+            logging_1.logger.info(`metaData : ${JSON.stringify(metaData)}`);
+            const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
+            const transaction = {
+                from: from,
+                privateKey: privateKey,
+                nonce: 999999,
+                quota: 999999,
+                version: metaData.version,
+                validUntilBlock: blockNumber + 30,
+                value: '0x0',
+            };
+            const receipt = yield con.methods.allowAccess(conaddress).send(transaction);
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
+        });
+    }
+    transferContract(contractname, contract, from, _to, value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contractPath = path.join("./contract", contractname);
+            const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+            // logger.info(`contractinfo : ${contractinfo}`);
+            const abiJson = contractinfo.abi;
+            const con = new this.peer.base.Contract(abiJson, contract);
+            const blockNumber = yield this.peer.base.getBlockNumber();
+            const metaData = yield this.peer.base.getMetaData();
+            logging_1.logger.info(`metaData : ${JSON.stringify(metaData)}`);
+            const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
+            const transaction = {
+                from: from,
+                privateKey: privateKey,
+                nonce: 999999,
+                quota: 999999,
+                version: metaData.version,
+                validUntilBlock: blockNumber + 30,
+                value: '0x0',
+            };
+            const receipt = yield con.methods.transfer(_to, value).send(transaction);
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
+        });
+    }
+    setstockContract(contractname, contract, from, name, telno) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contractPath = path.join("./contract", contractname);
+            const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+            // logger.info(`contractinfo : ${contractinfo}`);
+            const abiJson = contractinfo.abi;
+            const con = new this.peer.base.Contract(abiJson, contract);
+            const blockNumber = yield this.peer.base.getBlockNumber();
+            const metaData = yield this.peer.base.getMetaData();
+            logging_1.logger.info(`metaData : ${JSON.stringify(metaData)}`);
+            const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
+            const transaction = {
+                from: from,
+                privateKey: privateKey,
+                nonce: 999999,
+                quota: 999999,
+                version: metaData.version,
+                validUntilBlock: blockNumber + 30,
+                value: '0x0',
+            };
+            const namebytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(name));
+            const telnobytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(telno));
+            const receipt = yield con.methods.setStock(from, namebytes, telnobytes).send(transaction);
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
+        });
+    }
 };
 __decorate([
     routing_controllers_1.Post('/deploy'),
@@ -120,6 +246,38 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ContractController.prototype, "callContract", null);
 __decorate([
+    routing_controllers_1.Post('/supply'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("contractname")), __param(1, routing_controllers_1.BodyParam("contractadd")), __param(2, routing_controllers_1.BodyParam("from")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", Promise)
+], ContractController.prototype, "supplyContract", null);
+__decorate([
+    routing_controllers_1.Post('/balance'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("contractname")), __param(1, routing_controllers_1.BodyParam("contractadd")), __param(2, routing_controllers_1.BodyParam("from")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", Promise)
+], ContractController.prototype, "balanceContract", null);
+__decorate([
+    routing_controllers_1.Post('/getname'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("contractname")), __param(1, routing_controllers_1.BodyParam("contractadd")), __param(2, routing_controllers_1.BodyParam("from")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", Promise)
+], ContractController.prototype, "getnameContract", null);
+__decorate([
+    routing_controllers_1.Post('/getstock'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("contractname")), __param(1, routing_controllers_1.BodyParam("contractadd")), __param(2, routing_controllers_1.BodyParam("from")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", Promise)
+], ContractController.prototype, "getstockContract", null);
+__decorate([
     routing_controllers_1.Post('/send'),
     routing_controllers_1.ContentType("application/json"),
     __param(0, routing_controllers_1.BodyParam("contractname")), __param(1, routing_controllers_1.BodyParam("contractadd")), __param(2, routing_controllers_1.BodyParam("from")),
@@ -127,6 +285,39 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], ContractController.prototype, "sendContract", null);
+__decorate([
+    routing_controllers_1.Post('/access'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("contractname")), __param(1, routing_controllers_1.BodyParam("contractadd")),
+    __param(2, routing_controllers_1.BodyParam("from")),
+    __param(3, routing_controllers_1.BodyParam("senderConAddress")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String]),
+    __metadata("design:returntype", Promise)
+], ContractController.prototype, "accessContract", null);
+__decorate([
+    routing_controllers_1.Post('/transfer'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("contractname")), __param(1, routing_controllers_1.BodyParam("contractadd")),
+    __param(2, routing_controllers_1.BodyParam("from")),
+    __param(3, routing_controllers_1.BodyParam("to")),
+    __param(4, routing_controllers_1.BodyParam("value")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String, Number]),
+    __metadata("design:returntype", Promise)
+], ContractController.prototype, "transferContract", null);
+__decorate([
+    routing_controllers_1.Post('/setstock'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("contractname")),
+    __param(1, routing_controllers_1.BodyParam("contractadd")),
+    __param(2, routing_controllers_1.BodyParam("from")),
+    __param(3, routing_controllers_1.BodyParam("name")),
+    __param(4, routing_controllers_1.BodyParam("telno")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String, String]),
+    __metadata("design:returntype", Promise)
+], ContractController.prototype, "setstockContract", null);
 ContractController = __decorate([
     routing_controllers_1.JsonController("/contract"),
     __metadata("design:paramtypes", [])

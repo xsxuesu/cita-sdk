@@ -20,6 +20,14 @@ export class ChainController {
         return {"peerCount":peerCount} ;    
     }
 
+    @Get('/accounts')
+    @ContentType("application/json")
+    async getAccounts() {
+        let accounts = await this.peer.base.getAccounts();
+        logger.info(`accounts COUNT : ${accounts}`);
+        return {"accounts":accounts} ;    
+    }
+
     @Get('/metadata')
     @ContentType("application/json")
     async getMetaData() {

@@ -37,6 +37,13 @@ let ChainController = class ChainController {
             return { "peerCount": peerCount };
         });
     }
+    getAccounts() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let accounts = yield this.peer.base.getAccounts();
+            logging_1.logger.info(`accounts COUNT : ${accounts}`);
+            return { "accounts": accounts };
+        });
+    }
     getMetaData() {
         return __awaiter(this, void 0, void 0, function* () {
             let metaData = yield this.peer.base.getMetaData();
@@ -144,6 +151,13 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], ChainController.prototype, "getPeerCount", null);
+__decorate([
+    routing_controllers_1.Get('/accounts'),
+    routing_controllers_1.ContentType("application/json"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], ChainController.prototype, "getAccounts", null);
 __decorate([
     routing_controllers_1.Get('/metadata'),
     routing_controllers_1.ContentType("application/json"),
