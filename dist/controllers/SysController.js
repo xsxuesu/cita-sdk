@@ -90,7 +90,7 @@ let SysController = class SysController {
             return { "receipt": receipt };
         });
     }
-    multitxContract(address, _ids, _stages, _values) {
+    multitxContract(address, _values) {
         return __awaiter(this, void 0, void 0, function* () {
             const contractPath = path.join("./contract", "BatchTx.abi");
             const abiJson = JSON.parse(fs.readFileSync(contractPath).toString());
@@ -106,43 +106,35 @@ let SysController = class SysController {
                 from: from,
                 privateKey: privateKey,
                 nonce: 999999,
-                quota: 9999999,
+                quota: 99999999,
                 version: metaData.version,
                 validUntilBlock: blockNumber + 30,
                 value: '0x0',
             };
             var receipts = [];
-            for (let index = 0; index < _ids.length; index++) {
-                const _id = web3.utils.hexToBytes(web3.utils.utf8ToHex(_ids[index]));
-                const _stage = web3.utils.hexToBytes(web3.utils.utf8ToHex(_stages[index]));
-                const _value = web3.utils.hexToBytes(web3.utils.utf8ToHex(_values[index]));
-                const _encode = abi.encodeFunctionCall({
-                    name: 'setStorage',
+            for (let index = 0; index < _values.length; index++) {
+                const _value = web3.utils.hexToBytes(web3.utils.toHex(_values[index]));
+                var _encode = abi.encodeFunctionCall({
+                    name: 'set',
                     type: 'function',
                     inputs: [{
-                            "internalType": "bytes",
-                            "name": "_id",
-                            "type": "bytes"
-                        },
-                        {
-                            "internalType": "bytes",
-                            "name": "_stage",
-                            "type": "bytes"
-                        },
-                        {
-                            "internalType": "bytes",
-                            "name": "_value",
-                            "type": "bytes"
+                            "internalType": "uint256",
+                            "name": "x",
+                            "type": "uint256"
                         }]
-                }, [_id, _stage, _value]);
-                logging_1.logger.info(`_encode : ${_encode.length / 2}`);
-                const rlplength = web3.utils.toHex(_encode.length / 2);
+                }, [_value]);
+                logging_1.logger.info(`_value : ${_value}`);
+                logging_1.logger.info(`_encode : ${_encode}`);
+                logging_1.logger.info(`_encode : ${web3.utils.hexToBytes(_encode).length}`);
+                const rlplength = web3.utils.toHex(web3.utils.hexToBytes(_encode).length);
                 logging_1.logger.info(`rlplength : ${rlplength}`);
                 const left_rlp_length = web3.utils.padLeft(rlplength, 8);
                 logging_1.logger.info(`left_rlp_length : ${left_rlp_length}`);
+                //${left_rlp_length.replace("0x","")}
                 const _addrFun = `0x${address.replace("0x", "")}${left_rlp_length.replace("0x", "")}${_encode.replace("0x", "")}`;
                 logging_1.logger.info(`_addrFun : ${_addrFun}`);
                 const _addrFunBytes = web3.utils.hexToBytes(_addrFun);
+                logging_1.logger.info(`_addrFunBytes : ${_addrFunBytes}`);
                 const receipt = yield con.methods.multiTxs(_addrFunBytes).send(transaction);
                 logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
                 receipts.push(receipt);
@@ -171,11 +163,9 @@ __decorate([
     routing_controllers_1.Post('/multitx'),
     routing_controllers_1.ContentType("application/json"),
     __param(0, routing_controllers_1.BodyParam("address")),
-    __param(1, routing_controllers_1.BodyParam("ids")),
-    __param(2, routing_controllers_1.BodyParam("stages")),
-    __param(3, routing_controllers_1.BodyParam("values")),
+    __param(1, routing_controllers_1.BodyParam("values")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Array, Array, Array]),
+    __metadata("design:paramtypes", [String, Array]),
     __metadata("design:returntype", Promise)
 ], SysController.prototype, "multitxContract", null);
 SysController = __decorate([
@@ -183,4 +173,22 @@ SysController = __decorate([
     __metadata("design:paramtypes", [])
 ], SysController);
 exports.SysController = SysController;
+// {
+//   name: 'setStorage',
+//   type: 'function',
+//   inputs: [{
+//   "internalType": "bytes",
+//   "name": "_id",
+//   "type": "bytes"
+// },
+// {
+//   "internalType": "bytes",
+//   "name": "_stage",
+//   "type": "bytes"
+// },
+// {
+//   "internalType": "bytes",
+//   "name": "_value",
+//   "type": "bytes"
+// }]
 //# sourceMappingURL=SysController.js.map
