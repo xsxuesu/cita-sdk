@@ -54,16 +54,18 @@ let ContractController = class ContractController {
                 from: from,
                 privateKey: privateKey,
                 nonce: 999999,
-                quota: 999999,
+                quota: 9999999,
                 version: metaData.version,
                 validUntilBlock: blockNumber + 70,
                 value: '0x0',
             };
             const txRes = yield newContract.deploy({ data: bytecode, arguments: [], }).send(transaction);
+            // 0x141d051b1b1922bf686f5df8aad45cefbcb0b696
             // const privateKey = '0xe45101cbb6f63219be644ec0592e199d0928c33d1fc3cbaf86db7153dcf0a2df'
             const receipt = yield this.peer.listeners.listenToTransactionReceipt(txRes.hash);
             // set contract address to contract instance
             newContract.options.address = receipt.contractAddress;
+            logging_1.logger.info(receipt);
             return { "contractAddress": receipt.contractAddress };
         });
     }
@@ -228,6 +230,121 @@ let ContractController = class ContractController {
             return { "listener": listeners };
         });
     }
+    ///////////////////////======================================
+    setstorageContract(contractname, contract, from, _id, _stage, _value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contractPath = path.join("./contract", contractname);
+            const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+            // logger.info(`contractinfo : ${contractinfo}`);
+            const abiJson = contractinfo.abi;
+            const con = new this.peer.base.Contract(abiJson, contract);
+            const blockNumber = yield this.peer.base.getBlockNumber();
+            const metaData = yield this.peer.base.getMetaData();
+            logging_1.logger.info(`metaData : ${JSON.stringify(metaData)}`);
+            const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
+            const transaction = {
+                from: from,
+                privateKey: privateKey,
+                nonce: 999999,
+                quota: 999999,
+                version: metaData.version,
+                validUntilBlock: blockNumber + 30,
+                value: '0x0',
+            };
+            const id_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_id));
+            const stage_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_stage));
+            const value_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_value));
+            const receipt = yield con.methods.setStorage(id_bytes, stage_bytes, value_bytes).send(transaction);
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
+        });
+    }
+    getstorageContract(contractname, contract, from, _id, _stage) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contractPath = path.join("./contract", contractname);
+            const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+            // logger.info(`contractinfo : ${contractinfo}`);
+            const abiJson = contractinfo.abi;
+            const con = new this.peer.base.Contract(abiJson, contract);
+            const id_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_id));
+            const stage_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_stage));
+            const stockinfo = yield con.methods.getStorage(id_bytes, stage_bytes).call({ from: from });
+            logging_1.logger.info(`stockinfo : ${stockinfo}`);
+            stockinfo["0"] = stockinfo["0"];
+            stockinfo["1"] = web3.utils.hexToUtf8(stockinfo["1"]);
+            stockinfo["2"] = web3.utils.hexToUtf8(stockinfo["2"]);
+            stockinfo["3"] = web3.utils.hexToUtf8(stockinfo["3"]);
+            return { "storageinfo": stockinfo };
+        });
+    }
+    ///////////////////////======================================
+    setmapstorageContract(contractname, contract, from, _id, _stage, _keys, _values) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contractPath = path.join("./contract", contractname);
+            const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+            logging_1.logger.info(`contractinfo ---------------`);
+            const abiJson = contractinfo.abi;
+            const con = new this.peer.base.Contract(abiJson, contract);
+            const blockNumber = yield this.peer.base.getBlockNumber();
+            const metaData = yield this.peer.base.getMetaData();
+            logging_1.logger.info(`metaData : ${JSON.stringify(metaData)}`);
+            const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
+            const transaction = {
+                from: from,
+                privateKey: privateKey,
+                nonce: 999999,
+                quota: 9999999,
+                version: metaData.version,
+                validUntilBlock: blockNumber + 30,
+                value: '0x0',
+            };
+            const id_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_id));
+            const stage_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_stage));
+            // logger.info(_keys.length);
+            logging_1.logger.info(`_keys ---------------：${_keys}`);
+            logging_1.logger.info(`_values ---------------：${_values}`);
+            var keys_bytes = new Array();
+            for (let index = 0; index < _keys.length; index++) {
+                const element = _keys[index];
+                keys_bytes.push(web3.utils.hexToBytes(web3.utils.utf8ToHex(element)));
+            }
+            var values_bytes = new Array();
+            for (let index = 0; index < _values.length; index++) {
+                const element = _values[index];
+                values_bytes.push(web3.utils.hexToBytes(web3.utils.utf8ToHex(element)));
+            }
+            const receipt = yield con.methods.setMapStorage(id_bytes, stage_bytes, keys_bytes, values_bytes).send(transaction);
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
+        });
+    }
+    getmapstorageContract(contractname, contract, from, _id, _stage) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contractPath = path.join("./contract", contractname);
+            const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+            // logger.info(`contractinfo : ${contractinfo}`);
+            const abiJson = contractinfo.abi;
+            const con = new this.peer.base.Contract(abiJson, contract);
+            const id_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_id));
+            const stage_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_stage));
+            const stockinfo = yield con.methods.getMapStorage(id_bytes, stage_bytes).call({ from: from });
+            logging_1.logger.info(`stockinfo : ${stockinfo}`);
+            stockinfo["0"] = stockinfo["0"];
+            stockinfo["1"] = web3.utils.hexToUtf8(stockinfo["1"]);
+            stockinfo["2"] = web3.utils.hexToUtf8(stockinfo["2"]);
+            var keys = new Array();
+            stockinfo["3"].forEach(element => {
+                keys.push(web3.utils.hexToUtf8(element));
+            });
+            var values = new Array();
+            stockinfo["4"].forEach(element => {
+                values.push(web3.utils.hexToUtf8(element));
+            });
+            stockinfo["3"] = keys;
+            stockinfo["4"] = values;
+            return { "storageinfo": stockinfo };
+        });
+    }
 };
 __decorate([
     routing_controllers_1.Post('/deploy'),
@@ -318,6 +435,54 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], ContractController.prototype, "setstockContract", null);
+__decorate([
+    routing_controllers_1.Post('/setstorage'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("contractname")),
+    __param(1, routing_controllers_1.BodyParam("contractadd")),
+    __param(2, routing_controllers_1.BodyParam("from")),
+    __param(3, routing_controllers_1.BodyParam("id")),
+    __param(4, routing_controllers_1.BodyParam("stage")), __param(5, routing_controllers_1.BodyParam("value")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String, String, String]),
+    __metadata("design:returntype", Promise)
+], ContractController.prototype, "setstorageContract", null);
+__decorate([
+    routing_controllers_1.Post('/getstorage'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("contractname")),
+    __param(1, routing_controllers_1.BodyParam("contractadd")),
+    __param(2, routing_controllers_1.BodyParam("from")), __param(3, routing_controllers_1.BodyParam("id")),
+    __param(4, routing_controllers_1.BodyParam("stage")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String, String]),
+    __metadata("design:returntype", Promise)
+], ContractController.prototype, "getstorageContract", null);
+__decorate([
+    routing_controllers_1.Post('/setmapstorage'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("contractname")),
+    __param(1, routing_controllers_1.BodyParam("contractadd")),
+    __param(2, routing_controllers_1.BodyParam("from")),
+    __param(3, routing_controllers_1.BodyParam("id")),
+    __param(4, routing_controllers_1.BodyParam("stage")),
+    __param(5, routing_controllers_1.BodyParam("keys")),
+    __param(6, routing_controllers_1.BodyParam("values")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String, String, Array, Array]),
+    __metadata("design:returntype", Promise)
+], ContractController.prototype, "setmapstorageContract", null);
+__decorate([
+    routing_controllers_1.Post('/getmapstorage'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("contractname")),
+    __param(1, routing_controllers_1.BodyParam("contractadd")),
+    __param(2, routing_controllers_1.BodyParam("from")), __param(3, routing_controllers_1.BodyParam("id")),
+    __param(4, routing_controllers_1.BodyParam("stage")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String, String]),
+    __metadata("design:returntype", Promise)
+], ContractController.prototype, "getmapstorageContract", null);
 ContractController = __decorate([
     routing_controllers_1.JsonController("/contract"),
     __metadata("design:paramtypes", [])

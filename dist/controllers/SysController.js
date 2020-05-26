@@ -26,6 +26,8 @@ const config = require("config");
 const logging_1 = require("../common/logging");
 const path = require("path");
 const fs = require("fs");
+const web3 = require("web3");
+const abi = require("web3-eth-abi");
 let SysController = class SysController {
     constructor() {
         let SDK = new Peer.Peer();
@@ -88,6 +90,66 @@ let SysController = class SysController {
             return { "receipt": receipt };
         });
     }
+    multitxContract(address, _ids, _stages, _values) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contractPath = path.join("./contract", "BatchTx.abi");
+            const abiJson = JSON.parse(fs.readFileSync(contractPath).toString());
+            logging_1.logger.info(`contractinfo : ${abiJson}`);
+            const BatchContract = "0xffffffffffffffffffffffffffffffffff02000e";
+            const con = new this.peer.base.Contract(abiJson, BatchContract);
+            const privateKey = config.get('adminPrivateKey').toString();
+            const from = config.get('adminAddress').toString();
+            const metaData = yield this.peer.base.getMetaData();
+            logging_1.logger.info(`metaData : ${JSON.stringify(metaData)}`);
+            const blockNumber = yield this.peer.base.getBlockNumber();
+            const transaction = {
+                from: from,
+                privateKey: privateKey,
+                nonce: 999999,
+                quota: 9999999,
+                version: metaData.version,
+                validUntilBlock: blockNumber + 30,
+                value: '0x0',
+            };
+            var receipts = [];
+            for (let index = 0; index < _ids.length; index++) {
+                const _id = web3.utils.hexToBytes(web3.utils.utf8ToHex(_ids[index]));
+                const _stage = web3.utils.hexToBytes(web3.utils.utf8ToHex(_stages[index]));
+                const _value = web3.utils.hexToBytes(web3.utils.utf8ToHex(_values[index]));
+                const _encode = abi.encodeFunctionCall({
+                    name: 'setStorage',
+                    type: 'function',
+                    inputs: [{
+                            "internalType": "bytes",
+                            "name": "_id",
+                            "type": "bytes"
+                        },
+                        {
+                            "internalType": "bytes",
+                            "name": "_stage",
+                            "type": "bytes"
+                        },
+                        {
+                            "internalType": "bytes",
+                            "name": "_value",
+                            "type": "bytes"
+                        }]
+                }, [_id, _stage, _value]);
+                logging_1.logger.info(`_encode : ${_encode.length / 2}`);
+                const rlplength = web3.utils.toHex(_encode.length / 2);
+                logging_1.logger.info(`rlplength : ${rlplength}`);
+                const left_rlp_length = web3.utils.padLeft(rlplength, 8);
+                logging_1.logger.info(`left_rlp_length : ${left_rlp_length}`);
+                const _addrFun = `0x${address.replace("0x", "")}${left_rlp_length.replace("0x", "")}${_encode.replace("0x", "")}`;
+                logging_1.logger.info(`_addrFun : ${_addrFun}`);
+                const _addrFunBytes = web3.utils.hexToBytes(_addrFun);
+                const receipt = yield con.methods.multiTxs(_addrFunBytes).send(transaction);
+                logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
+                receipts.push(receipt);
+            }
+            return { "receipts": receipts };
+        });
+    }
 };
 __decorate([
     routing_controllers_1.Post('/permissiontx'),
@@ -105,6 +167,17 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], SysController.prototype, "deployContract", null);
+__decorate([
+    routing_controllers_1.Post('/multitx'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("address")),
+    __param(1, routing_controllers_1.BodyParam("ids")),
+    __param(2, routing_controllers_1.BodyParam("stages")),
+    __param(3, routing_controllers_1.BodyParam("values")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Array, Array, Array]),
+    __metadata("design:returntype", Promise)
+], SysController.prototype, "multitxContract", null);
 SysController = __decorate([
     routing_controllers_1.JsonController("/sys"),
     __metadata("design:paramtypes", [])
