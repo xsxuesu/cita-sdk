@@ -424,4 +424,60 @@ export class ContractController {
       stockinfo["4"] = values;
       return {"storageinfo":stockinfo};
     }
+
+
+    ////////SetList
+    ///////////////////////======================================
+    @Post('/setlist')
+    @ContentType("application/json")
+    async setlistContract(@BodyParam("contractname") contractname: string,
+    @BodyParam("contractadd") contract:string,
+    @BodyParam("from") from:string,
+    @BodyParam("id") _id:string){
+      const contractPath = path.join("./contract",contractname);
+      const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+      logger.info(`contractinfo ---------------`);
+      const abiJson  = contractinfo.abi;
+
+      const con = new this.peer.base.Contract(abiJson, contract);
+
+      const blockNumber = await this.peer.base.getBlockNumber();
+      const metaData = await this.peer.base.getMetaData();
+      logger.info(`metaData : ${JSON.stringify(metaData)}`);
+      const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
+
+      const transaction = {
+        from: from,
+        privateKey:privateKey,
+        nonce: 999999,
+        quota: 9999999,
+        version: metaData.version,
+        validUntilBlock: blockNumber+30,
+        value: '0x0',
+      };
+      
+      const id_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_id));
+
+
+      const receipt = await con.methods.setList(id_bytes).send(transaction);
+      const listeners = await this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+      return {"listener":listeners};
+    }
+
+
+    @Post('/getlist')
+    @ContentType("application/json")
+    async getlistContract(@BodyParam("contractname") contractname: string,
+    @BodyParam("contractadd") contract:string,
+    @BodyParam("from") from:string){
+      const contractPath = path.join("./contract",contractname);
+      const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+      // logger.info(`contractinfo : ${contractinfo}`);
+      const abiJson  = contractinfo.abi;
+      const con = new this.peer.base.Contract(abiJson, contract);
+ 
+      const listinfo = await con.methods.getList().call({from:from})
+      logger.info(`listinfo : ${listinfo}`);
+      return {"listinfo":listinfo};
+    }
 }

@@ -112,6 +112,8 @@ let SysController = class SysController {
                 value: '0x0',
             };
             var receipts = [];
+            var body = [];
+            var _addrFun;
             for (let index = 0; index < _values.length; index++) {
                 const _value = web3.utils.hexToBytes(web3.utils.toHex(_values[index]));
                 var _encode = abi.encodeFunctionCall({
@@ -131,15 +133,75 @@ let SysController = class SysController {
                 const left_rlp_length = web3.utils.padLeft(rlplength, 8);
                 logging_1.logger.info(`left_rlp_length : ${left_rlp_length}`);
                 //${left_rlp_length.replace("0x","")}
-                const _addrFun = `0x${address.replace("0x", "")}${left_rlp_length.replace("0x", "")}${_encode.replace("0x", "")}`;
-                logging_1.logger.info(`_addrFun : ${_addrFun}`);
-                const _addrFunBytes = web3.utils.hexToBytes(_addrFun);
-                logging_1.logger.info(`_addrFunBytes : ${_addrFunBytes}`);
-                const receipt = yield con.methods.multiTxs(_addrFunBytes).send(transaction);
-                logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
-                receipts.push(receipt);
+                if (_addrFun == undefined) {
+                    _addrFun = `0x${address.replace("0x", "")}${left_rlp_length.replace("0x", "")}${_encode.replace("0x", "")}`;
+                }
+                else {
+                    _addrFun = `${_addrFun}${address.replace("0x", "")}${left_rlp_length.replace("0x", "")}${_encode.replace("0x", "")}`;
+                }
             }
-            return { "receipts": receipts };
+            logging_1.logger.info(`_addrFun : ${_addrFun}`);
+            const _addrFunBytes = web3.utils.hexToBytes(_addrFun);
+            const receipt = yield con.methods.multiTxs(_addrFunBytes).send(transaction);
+            logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
+            return { "receipts": receipt };
+        });
+    }
+    multitxContract3(address, _ids, _stages, _values) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contractPath = path.join("./contract", "BatchTx.abi");
+            const abiJson = JSON.parse(fs.readFileSync(contractPath).toString());
+            logging_1.logger.info(`contractinfo : ${abiJson}`);
+            const BatchContract = "0xffffffffffffffffffffffffffffffffff02000e";
+            const con = new this.peer.base.Contract(abiJson, BatchContract);
+            const privateKey = config.get('adminPrivateKey').toString();
+            const from = config.get('adminAddress').toString();
+            const metaData = yield this.peer.base.getMetaData();
+            logging_1.logger.info(`metaData : ${JSON.stringify(metaData)}`);
+            const blockNumber = yield this.peer.base.getBlockNumber();
+            const transaction = {
+                from: from,
+                privateKey: privateKey,
+                nonce: 999999,
+                quota: 99999999,
+                version: metaData.version,
+                validUntilBlock: blockNumber + 30,
+                value: '0x0',
+            };
+            var _addrFun;
+            for (let index = 0; index < _ids.length; index++) {
+                const _id = web3.utils.hexToBytes(web3.utils.utf8ToHex(_ids[index]));
+                const _stage = web3.utils.hexToBytes(web3.utils.utf8ToHex(_stages[index]));
+                var _encode = abi.encodeFunctionCall({
+                    name: 'setLists',
+                    type: 'function',
+                    inputs: [{
+                            "internalType": "bytes",
+                            "name": "_id",
+                            "type": "bytes"
+                        }, {
+                            "internalType": "bytes",
+                            "name": "_v",
+                            "type": "bytes"
+                        }]
+                }, [_id, _stage]);
+                logging_1.logger.info(`_encode : ${_encode}`);
+                const rlplength = web3.utils.toHex(web3.utils.hexToBytes(_encode).length);
+                logging_1.logger.info(`rlplength : ${rlplength}`);
+                const left_rlp_length = web3.utils.padLeft(rlplength, 8);
+                logging_1.logger.info(`left_rlp_length : ${left_rlp_length}`);
+                if (_addrFun == undefined) {
+                    _addrFun = `0x${address.replace("0x", "")}${left_rlp_length.replace("0x", "")}${_encode.replace("0x", "")}`;
+                }
+                else {
+                    _addrFun = `${_addrFun}${address.replace("0x", "")}${left_rlp_length.replace("0x", "")}${_encode.replace("0x", "")}`;
+                }
+            }
+            logging_1.logger.info(`_addrFun:${_addrFun}`);
+            const _addrFunBytes = web3.utils.hexToBytes(_addrFun);
+            const receipt = yield con.methods.multiTxs(_addrFunBytes).send(transaction);
+            logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
+            return { "receipts": receipt };
         });
     }
 };
@@ -168,27 +230,20 @@ __decorate([
     __metadata("design:paramtypes", [String, Array]),
     __metadata("design:returntype", Promise)
 ], SysController.prototype, "multitxContract", null);
+__decorate([
+    routing_controllers_1.Post('/multitx3'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("address")),
+    __param(1, routing_controllers_1.BodyParam("ids")),
+    __param(2, routing_controllers_1.BodyParam("stages")),
+    __param(3, routing_controllers_1.BodyParam("values")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Array, Array, Array]),
+    __metadata("design:returntype", Promise)
+], SysController.prototype, "multitxContract3", null);
 SysController = __decorate([
     routing_controllers_1.JsonController("/sys"),
     __metadata("design:paramtypes", [])
 ], SysController);
 exports.SysController = SysController;
-// {
-//   name: 'setStorage',
-//   type: 'function',
-//   inputs: [{
-//   "internalType": "bytes",
-//   "name": "_id",
-//   "type": "bytes"
-// },
-// {
-//   "internalType": "bytes",
-//   "name": "_stage",
-//   "type": "bytes"
-// },
-// {
-//   "internalType": "bytes",
-//   "name": "_value",
-//   "type": "bytes"
-// }]
 //# sourceMappingURL=SysController.js.map

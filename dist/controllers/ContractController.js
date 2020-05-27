@@ -345,6 +345,46 @@ let ContractController = class ContractController {
             return { "storageinfo": stockinfo };
         });
     }
+    ////////SetList
+    ///////////////////////======================================
+    setlistContract(contractname, contract, from, _id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contractPath = path.join("./contract", contractname);
+            const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+            logging_1.logger.info(`contractinfo ---------------`);
+            const abiJson = contractinfo.abi;
+            const con = new this.peer.base.Contract(abiJson, contract);
+            const blockNumber = yield this.peer.base.getBlockNumber();
+            const metaData = yield this.peer.base.getMetaData();
+            logging_1.logger.info(`metaData : ${JSON.stringify(metaData)}`);
+            const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
+            const transaction = {
+                from: from,
+                privateKey: privateKey,
+                nonce: 999999,
+                quota: 9999999,
+                version: metaData.version,
+                validUntilBlock: blockNumber + 30,
+                value: '0x0',
+            };
+            const id_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_id));
+            const receipt = yield con.methods.setList(id_bytes).send(transaction);
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
+        });
+    }
+    getlistContract(contractname, contract, from) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contractPath = path.join("./contract", contractname);
+            const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
+            // logger.info(`contractinfo : ${contractinfo}`);
+            const abiJson = contractinfo.abi;
+            const con = new this.peer.base.Contract(abiJson, contract);
+            const listinfo = yield con.methods.getList().call({ from: from });
+            logging_1.logger.info(`listinfo : ${listinfo}`);
+            return { "listinfo": listinfo };
+        });
+    }
 };
 __decorate([
     routing_controllers_1.Post('/deploy'),
@@ -483,6 +523,27 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], ContractController.prototype, "getmapstorageContract", null);
+__decorate([
+    routing_controllers_1.Post('/setlist'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("contractname")),
+    __param(1, routing_controllers_1.BodyParam("contractadd")),
+    __param(2, routing_controllers_1.BodyParam("from")),
+    __param(3, routing_controllers_1.BodyParam("id")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String, String]),
+    __metadata("design:returntype", Promise)
+], ContractController.prototype, "setlistContract", null);
+__decorate([
+    routing_controllers_1.Post('/getlist'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("contractname")),
+    __param(1, routing_controllers_1.BodyParam("contractadd")),
+    __param(2, routing_controllers_1.BodyParam("from")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", Promise)
+], ContractController.prototype, "getlistContract", null);
 ContractController = __decorate([
     routing_controllers_1.JsonController("/contract"),
     __metadata("design:paramtypes", [])

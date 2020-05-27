@@ -107,7 +107,8 @@ export class SysController {
         };
 
         var receipts = [];
-
+        var body = [] ;
+        var _addrFun ;
         for (let index = 0; index < _values.length; index++) {
           const _value = web3.utils.hexToBytes(web3.utils.toHex(_values[index]));
           var _encode = abi.encodeFunctionCall({
@@ -127,15 +128,17 @@ export class SysController {
           const left_rlp_length = web3.utils.padLeft(rlplength, 8);
           logger.info(`left_rlp_length : ${left_rlp_length}`);
           //${left_rlp_length.replace("0x","")}
-          const _addrFun = `0x${address.replace("0x","")}${left_rlp_length.replace("0x","")}${_encode.replace("0x","")}`;
-          logger.info(`_addrFun : ${_addrFun}`);
-          const _addrFunBytes = web3.utils.hexToBytes(_addrFun);
-          logger.info(`_addrFunBytes : ${_addrFunBytes}`);
-          const receipt = await con.methods.multiTxs(_addrFunBytes).send(transaction);
-          logger.info(`receipt:${JSON.stringify(receipt)}`)
-          receipts.push(receipt);
+          if (_addrFun == undefined){
+            _addrFun = `0x${address.replace("0x","")}${left_rlp_length.replace("0x","")}${_encode.replace("0x","")}`;
+          }else{
+            _addrFun = `${_addrFun}${address.replace("0x","")}${left_rlp_length.replace("0x","")}${_encode.replace("0x","")}`;
+          }
         }
-        return {"receipts":receipts};
+        logger.info(`_addrFun : ${_addrFun}`);
+        const _addrFunBytes = web3.utils.hexToBytes(_addrFun);
+        const receipt = await con.methods.multiTxs(_addrFunBytes).send(transaction);
+        logger.info(`receipt:${JSON.stringify(receipt)}`)
+        return {"receipts":receipt};
     }
 
 
@@ -144,7 +147,9 @@ export class SysController {
     @ContentType("application/json")
     async multitxContract3(
       @BodyParam("address") address: string,
-      @BodyParam("values") _values:Number[]
+      @BodyParam("ids") _ids:String[],
+      @BodyParam("stages") _stages:String[],
+      @BodyParam("values") _values:String[]
     ) {
         const contractPath = path.join("./contract","BatchTx.abi");
         const abiJson = JSON.parse(fs.readFileSync(contractPath).toString());
@@ -168,45 +173,37 @@ export class SysController {
           value: '0x0',
         };
 
-        var receipts = [];
-
-        for (let index = 0; index < _values.length; index++) {
-          const _value = web3.utils.hexToBytes(web3.utils.toHex(_values[index]));
+        var _addrFun;
+        for (let index = 0; index < _ids.length; index++) {
+          const _id = web3.utils.hexToBytes(web3.utils.utf8ToHex(_ids[index]));
+          const _stage = web3.utils.hexToBytes(web3.utils.utf8ToHex(_stages[index]));
           var _encode = abi.encodeFunctionCall({
-            name: 'setStorage',
+            name: 'setLists',
             type: 'function',
             inputs: [{
             "internalType": "bytes",
             "name": "_id",
             "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "_stage",
-            "type": "bytes"
-          },
-          {
-            "internalType": "bytes",
-            "name": "_value",
-            "type": "bytes"
-          }], [_value]);
-          logger.info(`_value : ${_value}`);
+            },{
+              "internalType": "bytes",
+              "name": "_v",
+              "type": "bytes"
+              }]}, [_id,_stage]);
           logger.info(`_encode : ${_encode}`);
-          logger.info(`_encode : ${web3.utils.hexToBytes(_encode).length}`);
           const rlplength = web3.utils.toHex(web3.utils.hexToBytes(_encode).length);
           logger.info(`rlplength : ${rlplength}`);
           const left_rlp_length = web3.utils.padLeft(rlplength, 8);
           logger.info(`left_rlp_length : ${left_rlp_length}`);
-          //${left_rlp_length.replace("0x","")}
-          const _addrFun = `0x${address.replace("0x","")}${left_rlp_length.replace("0x","")}${_encode.replace("0x","")}`;
-          logger.info(`_addrFun : ${_addrFun}`);
-          const _addrFunBytes = web3.utils.hexToBytes(_addrFun);
-          logger.info(`_addrFunBytes : ${_addrFunBytes}`);
-          const receipt = await con.methods.multiTxs(_addrFunBytes).send(transaction);
-          logger.info(`receipt:${JSON.stringify(receipt)}`)
-          receipts.push(receipt);
+          if (_addrFun == undefined){
+            _addrFun = `0x${address.replace("0x","")}${left_rlp_length.replace("0x","")}${_encode.replace("0x","")}`;
+          }else{
+            _addrFun = `${_addrFun}${address.replace("0x","")}${left_rlp_length.replace("0x","")}${_encode.replace("0x","")}`;
+          }
         }
-        return {"receipts":receipts};
+        logger.info(`_addrFun:${_addrFun}`)
+        const _addrFunBytes = web3.utils.hexToBytes(_addrFun);
+        const receipt = await con.methods.multiTxs(_addrFunBytes).send(transaction);
+        logger.info(`receipt:${JSON.stringify(receipt)}`)
+        return {"receipts":receipt};
     }
 }
-
