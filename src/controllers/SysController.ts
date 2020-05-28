@@ -22,7 +22,7 @@ export class SysController {
       const contractPath = path.join("./contract",abi);
       // logger.info(`contractinfo : ${fs.readFileSync(contractPath).toString()}`);
       const abiJson = JSON.parse(fs.readFileSync(contractPath).toString());
-      logger.info(`contractinfo : ${abiJson}`);
+      // logger.info(`contractinfo : ${abiJson}`);
       const con = new this.peer.base.Contract(abiJson, addr);
       const privateKey = config.get('adminPrivateKey').toString();
       const from = config.get('adminAddress').toString();
@@ -166,7 +166,7 @@ export class SysController {
       @BodyParam("website") _website:string
     ) {
 
-        const contx = this.getConTx("SysConfig.abi","");
+        const contx = this.getConTx("SysConfig.abi","0xFFfffFFfFfFffFFfFFfffFffFfFFFffFFf020000");
         const con = (await contx).con;
         const transaction = (await contx).tx;
         
@@ -181,7 +181,7 @@ export class SysController {
       @BodyParam("chainname") _chainname:string
     ) {
 
-      const contx = this.getConTx("SysConfig.abi","");
+      const contx = this.getConTx("SysConfig.abi","0xFFfffFFfFfFffFFfFFfffFffFfFFFffFFf020000");
       const con = (await contx).con;
       const transaction = (await contx).tx;
        
@@ -189,7 +189,21 @@ export class SysController {
         logger.info(`receipt:${JSON.stringify(receipt)}`)
         return {"receipts":receipt};
     }
+    
+    @Post('/setoperator')
+    @ContentType("application/json")
+    async operatorContract(
+      @BodyParam("operator") _operator:string
+    ) {
 
+      const contx = this.getConTx("SysConfig.abi","0xFFfffFFfFfFffFFfFFfffFffFfFFFffFFf020000");
+      const con = (await contx).con;
+      const transaction = (await contx).tx;
+       
+        const receipt = await con.methods.setOperator(_operator).send(transaction);
+        logger.info(`receipt:${JSON.stringify(receipt)}`)
+        return {"receipts":receipt};
+    }
 
     @Post('/setversion')
     @ContentType("application/json")
@@ -197,7 +211,7 @@ export class SysController {
       @BodyParam("version") _version:Number
     ) {
 
-      const contx = this.getConTx("VersionManager.abi","");
+      const contx = this.getConTx("VersionManager.abi","0xFffFffFffFfFFfFfffFffffffffFffFfFF021028");
       const con = (await contx).con;
       const transaction = (await contx).tx;
         

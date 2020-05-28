@@ -34,16 +34,14 @@ let SysController = class SysController {
         this.peer = SDK.peer;
         logging_1.logger.info(`had connected on peer : ${config.get('Peer.Url').toString()}`);
     }
-    txContract(address) {
+    getConTx(abi, addr) {
         return __awaiter(this, void 0, void 0, function* () {
             // logger.info(`contractname : ${contractname}`);
-            const contractPath = path.join("./contract", "PermissionManagement.abi");
+            const contractPath = path.join("./contract", abi);
             // logger.info(`contractinfo : ${fs.readFileSync(contractPath).toString()}`);
             const abiJson = JSON.parse(fs.readFileSync(contractPath).toString());
             logging_1.logger.info(`contractinfo : ${abiJson}`);
-            const TxPermissionContract = "0xffffffffffffffffffffffffffffffffff020004";
-            // const result = this.peer.base.personal.unlockAccount(from, password);
-            const con = new this.peer.base.Contract(abiJson, TxPermissionContract);
+            const con = new this.peer.base.Contract(abiJson, addr);
             const privateKey = config.get('adminPrivateKey').toString();
             const from = config.get('adminAddress').toString();
             const metaData = yield this.peer.base.getMetaData();
@@ -58,59 +56,32 @@ let SysController = class SysController {
                 validUntilBlock: blockNumber + 30,
                 value: '0x0',
             };
+            return { "con": con, "tx": transaction };
+        });
+    }
+    txContract(address) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contx = this.getConTx("PermissionManagement.abi", "0xffffffffffffffffffffffffffffffffff020004");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
             const receipt = yield con.methods.setAuthorizations(address, ["ffffffffffffffffffffffffffffffffff021000"]).send(transaction);
             return { "receipt": receipt };
         });
     }
     deployContract(address) {
         return __awaiter(this, void 0, void 0, function* () {
-            // logger.info(`contractname : ${contractname}`);
-            const contractPath = path.join("./contract", "PermissionManagement.abi");
-            // logger.info(`contractinfo : ${fs.readFileSync(contractPath).toString()}`);
-            const abiJson = JSON.parse(fs.readFileSync(contractPath).toString());
-            logging_1.logger.info(`contractinfo : ${abiJson}`);
-            const TxPermissionContract = "0xffffffffffffffffffffffffffffffffff020004";
-            // const result = this.peer.base.personal.unlockAccount(from, password);
-            const con = new this.peer.base.Contract(abiJson, TxPermissionContract);
-            const privateKey = config.get('adminPrivateKey').toString();
-            const from = config.get('adminAddress').toString();
-            const metaData = yield this.peer.base.getMetaData();
-            logging_1.logger.info(`metaData : ${JSON.stringify(metaData)}`);
-            const blockNumber = yield this.peer.base.getBlockNumber();
-            const transaction = {
-                from: from,
-                privateKey: privateKey,
-                nonce: 999999,
-                quota: 999999,
-                version: metaData.version,
-                validUntilBlock: blockNumber + 30,
-                value: '0x0',
-            };
+            const contx = this.getConTx("PermissionManagement.abi", "0xffffffffffffffffffffffffffffffffff020004");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
             const receipt = yield con.methods.setAuthorizations(address, ["ffffffffffffffffffffffffffffffffff021001"]).send(transaction);
             return { "receipt": receipt };
         });
     }
     multitxContract(address, _values) {
         return __awaiter(this, void 0, void 0, function* () {
-            const contractPath = path.join("./contract", "BatchTx.abi");
-            const abiJson = JSON.parse(fs.readFileSync(contractPath).toString());
-            logging_1.logger.info(`contractinfo : ${abiJson}`);
-            const BatchContract = "0xffffffffffffffffffffffffffffffffff02000e";
-            const con = new this.peer.base.Contract(abiJson, BatchContract);
-            const privateKey = config.get('adminPrivateKey').toString();
-            const from = config.get('adminAddress').toString();
-            const metaData = yield this.peer.base.getMetaData();
-            logging_1.logger.info(`metaData : ${JSON.stringify(metaData)}`);
-            const blockNumber = yield this.peer.base.getBlockNumber();
-            const transaction = {
-                from: from,
-                privateKey: privateKey,
-                nonce: 999999,
-                quota: 99999999,
-                version: metaData.version,
-                validUntilBlock: blockNumber + 30,
-                value: '0x0',
-            };
+            const contx = this.getConTx("BatchTx.abi", "0xffffffffffffffffffffffffffffffffff02000e");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
             var receipts = [];
             var body = [];
             var _addrFun;
@@ -149,25 +120,9 @@ let SysController = class SysController {
     }
     multitxContract3(address, _ids, _stages, _values) {
         return __awaiter(this, void 0, void 0, function* () {
-            const contractPath = path.join("./contract", "BatchTx.abi");
-            const abiJson = JSON.parse(fs.readFileSync(contractPath).toString());
-            logging_1.logger.info(`contractinfo : ${abiJson}`);
-            const BatchContract = "0xffffffffffffffffffffffffffffffffff02000e";
-            const con = new this.peer.base.Contract(abiJson, BatchContract);
-            const privateKey = config.get('adminPrivateKey').toString();
-            const from = config.get('adminAddress').toString();
-            const metaData = yield this.peer.base.getMetaData();
-            logging_1.logger.info(`metaData : ${JSON.stringify(metaData)}`);
-            const blockNumber = yield this.peer.base.getBlockNumber();
-            const transaction = {
-                from: from,
-                privateKey: privateKey,
-                nonce: 999999,
-                quota: 99999999,
-                version: metaData.version,
-                validUntilBlock: blockNumber + 30,
-                value: '0x0',
-            };
+            const contx = this.getConTx("BatchTx.abi", "0xffffffffffffffffffffffffffffffffff02000e");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
             var _addrFun;
             for (let index = 0; index < _ids.length; index++) {
                 const _id = web3.utils.hexToBytes(web3.utils.utf8ToHex(_ids[index]));
@@ -200,6 +155,118 @@ let SysController = class SysController {
             logging_1.logger.info(`_addrFun:${_addrFun}`);
             const _addrFunBytes = web3.utils.hexToBytes(_addrFun);
             const receipt = yield con.methods.multiTxs(_addrFunBytes).send(transaction);
+            logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
+            return { "receipts": receipt };
+        });
+    }
+    websiteContract3(_website) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contx = this.getConTx("SysConfig.abi", "0xFFfffFFfFfFffFFfFFfffFffFfFFFffFFf020000");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
+            const receipt = yield con.methods.setWebsite(_website).send(transaction);
+            logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
+            return { "receipts": receipt };
+        });
+    }
+    chainnameContract(_chainname) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contx = this.getConTx("SysConfig.abi", "0xFFfffFFfFfFffFFfFFfffFffFfFFFffFFf020000");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
+            const receipt = yield con.methods.setChainName(_chainname).send(transaction);
+            logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
+            return { "receipts": receipt };
+        });
+    }
+    versionContract(_version) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contx = this.getConTx("VersionManager.abi", "0xFffFffFffFfFFfFfffFffffffffFffFfFF021028");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
+            const receipt = yield con.methods.setVersion(_version).send(transaction);
+            logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
+            return { "receipts": receipt };
+        });
+    }
+    roleContract(_role, _addrs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contx = this.getConTx("RoleManager.abi", "0xffffffffffffffffffffffffffffffffff020007");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
+            const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
+            const receipt = yield con.methods.newRole(role_bytes, _addrs).send(transaction);
+            logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
+            return { "receipts": receipt };
+        });
+    }
+    delroleContract(_role) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contx = this.getConTx("RoleManager.abi", "0xffffffffffffffffffffffffffffffffff020007");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
+            const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
+            const receipt = yield con.methods.deleteRole(role_bytes).send(transaction);
+            logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
+            return { "receipts": receipt };
+        });
+    }
+    //updateRoleName
+    updateroleContract(_addr_role, _role) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contx = this.getConTx("RoleManager.abi", "0xffffffffffffffffffffffffffffffffff020007");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
+            const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
+            const receipt = yield con.methods.updateRoleName(_addr_role, role_bytes).send(transaction);
+            logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
+            return { "receipts": receipt };
+        });
+    }
+    //addPermissions
+    addPermissionContract(_addr_role, _addrs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contx = this.getConTx("RoleManager.abi", "0xffffffffffffffffffffffffffffffffff020007");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
+            //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
+            const receipt = yield con.methods.addPermissions(_addr_role, _addrs).send(transaction);
+            logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
+            return { "receipts": receipt };
+        });
+    }
+    //deletePermissions
+    delPermissionContract(_addr_role, _addrs) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contx = this.getConTx("RoleManager.abi", "0xffffffffffffffffffffffffffffffffff020007");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
+            //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
+            const receipt = yield con.methods.deletePermissions(_addr_role, _addrs).send(transaction);
+            logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
+            return { "receipts": receipt };
+        });
+    }
+    //deletePermissions
+    cancelRoleContract(_account, _role) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contx = this.getConTx("RoleManager.abi", "0xffffffffffffffffffffffffffffffffff020007");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
+            //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
+            const receipt = yield con.methods.cancelRole(_account, _role).send(transaction);
+            logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
+            return { "receipts": receipt };
+        });
+    }
+    //clearRole
+    clearRoleContract(_account) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contx = this.getConTx("RoleManager.abi", "0xffffffffffffffffffffffffffffffffff020007");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
+            //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
+            const receipt = yield con.methods.clearRole(_account).send(transaction);
             logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
             return { "receipts": receipt };
         });
@@ -241,6 +308,91 @@ __decorate([
     __metadata("design:paramtypes", [String, Array, Array, Array]),
     __metadata("design:returntype", Promise)
 ], SysController.prototype, "multitxContract3", null);
+__decorate([
+    routing_controllers_1.Post('/setwebsite'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("website")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], SysController.prototype, "websiteContract3", null);
+__decorate([
+    routing_controllers_1.Post('/setchainname'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("chainname")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], SysController.prototype, "chainnameContract", null);
+__decorate([
+    routing_controllers_1.Post('/setversion'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("version")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number]),
+    __metadata("design:returntype", Promise)
+], SysController.prototype, "versionContract", null);
+__decorate([
+    routing_controllers_1.Post('/newrole'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("role")),
+    __param(1, routing_controllers_1.BodyParam("addresses")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Array]),
+    __metadata("design:returntype", Promise)
+], SysController.prototype, "roleContract", null);
+__decorate([
+    routing_controllers_1.Post('/deleterole'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("role")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], SysController.prototype, "delroleContract", null);
+__decorate([
+    routing_controllers_1.Post('/updaterole'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("addrole")),
+    __param(1, routing_controllers_1.BodyParam("role")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], SysController.prototype, "updateroleContract", null);
+__decorate([
+    routing_controllers_1.Post('/addpermission'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("addrole")),
+    __param(1, routing_controllers_1.BodyParam("addrs")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Array]),
+    __metadata("design:returntype", Promise)
+], SysController.prototype, "addPermissionContract", null);
+__decorate([
+    routing_controllers_1.Post('/delpermission'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("addrole")),
+    __param(1, routing_controllers_1.BodyParam("addrs")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Array]),
+    __metadata("design:returntype", Promise)
+], SysController.prototype, "delPermissionContract", null);
+__decorate([
+    routing_controllers_1.Post('/canclerole'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("account")),
+    __param(1, routing_controllers_1.BodyParam("role")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], SysController.prototype, "cancelRoleContract", null);
+__decorate([
+    routing_controllers_1.Post('/clearrole'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("account")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], SysController.prototype, "clearRoleContract", null);
 SysController = __decorate([
     routing_controllers_1.JsonController("/sys"),
     __metadata("design:paramtypes", [])
