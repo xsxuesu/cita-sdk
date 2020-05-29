@@ -40,7 +40,7 @@ let SysController = class SysController {
             const contractPath = path.join("./contract", abi);
             // logger.info(`contractinfo : ${fs.readFileSync(contractPath).toString()}`);
             const abiJson = JSON.parse(fs.readFileSync(contractPath).toString());
-            logging_1.logger.info(`contractinfo : ${abiJson}`);
+            // logger.info(`contractinfo : ${abiJson}`);
             const con = new this.peer.base.Contract(abiJson, addr);
             const privateKey = config.get('adminPrivateKey').toString();
             const from = config.get('adminAddress').toString();
@@ -74,6 +74,24 @@ let SysController = class SysController {
             const con = (yield contx).con;
             const transaction = (yield contx).tx;
             const receipt = yield con.methods.setAuthorizations(address, ["ffffffffffffffffffffffffffffffffff021001"]).send(transaction);
+            return { "receipt": receipt };
+        });
+    }
+    canceltxContract(address) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contx = this.getConTx("PermissionManagement.abi", "0xffffffffffffffffffffffffffffffffff020004");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
+            const receipt = yield con.methods.cancelAuthorizations(address, ["ffffffffffffffffffffffffffffffffff021000"]).send(transaction);
+            return { "receipt": receipt };
+        });
+    }
+    cancelContract(address) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contx = this.getConTx("PermissionManagement.abi", "0xffffffffffffffffffffffffffffffffff020004");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
+            const receipt = yield con.methods.cancelAuthorizations(address, ["ffffffffffffffffffffffffffffffffff021001"]).send(transaction);
             return { "receipt": receipt };
         });
     }
@@ -175,6 +193,16 @@ let SysController = class SysController {
             const con = (yield contx).con;
             const transaction = (yield contx).tx;
             const receipt = yield con.methods.setChainName(_chainname).send(transaction);
+            logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
+            return { "receipts": receipt };
+        });
+    }
+    operatorContract(_operator) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contx = this.getConTx("SysConfig.abi", "0xFFfffFFfFfFffFFfFFfffFffFfFFFffFFf020000");
+            const con = (yield contx).con;
+            const transaction = (yield contx).tx;
+            const receipt = yield con.methods.setOperator(_operator).send(transaction);
             logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
             return { "receipts": receipt };
         });
@@ -289,6 +317,22 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], SysController.prototype, "deployContract", null);
 __decorate([
+    routing_controllers_1.Post('/cancelpermissiontx'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("address")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], SysController.prototype, "canceltxContract", null);
+__decorate([
+    routing_controllers_1.Post('/cancelpermissioncontract'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("address")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], SysController.prototype, "cancelContract", null);
+__decorate([
     routing_controllers_1.Post('/multitx'),
     routing_controllers_1.ContentType("application/json"),
     __param(0, routing_controllers_1.BodyParam("address")),
@@ -324,6 +368,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], SysController.prototype, "chainnameContract", null);
+__decorate([
+    routing_controllers_1.Post('/setoperator'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("operator")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], SysController.prototype, "operatorContract", null);
 __decorate([
     routing_controllers_1.Post('/setversion'),
     routing_controllers_1.ContentType("application/json"),

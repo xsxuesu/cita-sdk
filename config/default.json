@@ -13,6 +13,6 @@
       "Url": "http://127.0.0.1:1337"
     },
     "LogLevel": "info",
-    "adminAddress":"0x20e7301a089e246B060c472e1fF9c3Bb205D75A8",
-    "adminPrivateKey":"0x525c90ebf2dd0f1a6ca49c351a357a04d0633078b6de4b2a34bf48428863368d"
+    "adminAddress":"0x37D1C7449BFe76fe9c445e626da06265E9377601",
+    "adminPrivateKey":"0x3ef2627393529fed043c7dbfd9358a4ae47a88a59949b07e7631722fd6959002"
   }

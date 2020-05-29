@@ -74,6 +74,24 @@ export class Users {
         logger.info(`create address : ${JSON.stringify(result)}`);
         return {"result":result}; 
     }
+
+    // admin
+    @Post('/admin')
+    @ContentType("application/json")
+    async queryadminContract(
+      @BodyParam("address") address: string
+    ) {
+        const contractPath = path.join("./contract","Admin.abi");
+        const abiJson = JSON.parse(fs.readFileSync(contractPath).toString());
+        logger.info(`contractinfo : ${abiJson}`);
+        const BatchContract = "0xffffffffffffffffffffffffffffffffff02000c";
+       
+        const con = new this.peer.base.Contract(abiJson, BatchContract);
+
+        const receipt = await con.methods.admin().call()
+        logger.info(`receipt:${JSON.stringify(receipt)}`)
+        return {"receipts":receipt};
+    }
     //common/Admin.sol
     //0xffffffffffffffffffffffffffffffffff02000c
     @Post('/isadmin')
@@ -97,7 +115,8 @@ export class Users {
     @ContentType("application/json")
     async updateadminContract(
         @BodyParam("from") from: string,
-      @BodyParam("address") address: string
+        @BodyParam("privatekey") privatekey: string,
+        @BodyParam("address") address: string
     ) {
       const contractPath = path.join("./contract","Admin.abi");
       const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
@@ -107,11 +126,11 @@ export class Users {
       const blockNumber = await this.peer.base.getBlockNumber();
       const metaData = await this.peer.base.getMetaData();
       logger.info(`metaData : ${JSON.stringify(metaData)}`);
-      const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
+      // const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
 
       const transaction = {
         from: from,
-        privateKey:privateKey,
+        privateKey:privatekey,
         nonce: 999999,
         quota: 9999999,
         version: metaData.version,
@@ -209,6 +228,18 @@ export class Users {
       return {"listener":listeners};
     }
 
+    // updateGroupName
+    @Post('/querygroups')
+    @ContentType("application/json")
+    async queryGroupContract() {
+      const conTx = this.getTransaction("GroupManagement.abi","0xFFFffFFfffffFFfffFFffffFFFffFfFffF02000a");
+      const con = (await conTx).con;
+      // const transaction = (await conTx).tx;
+      // const name_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_name));
+      const receipt = await con.methods.queryGroups().call();
+      // const listeners = await this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+      return {"receipt":receipt};
+    }
 
 //     name	permission
 // sendTx	表示发交易权限

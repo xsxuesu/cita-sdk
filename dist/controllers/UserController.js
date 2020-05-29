@@ -56,6 +56,16 @@ let Users = class Users {
             return { "con": con, "tx": transaction };
         });
     }
+    //queryGroups
+    getGroups() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const conTx = this.getTransaction("GroupManagement.abi", "0xFFFffFFfffffFFfffFFffffFFFffFfFffF02000a");
+            const con = (yield conTx).con;
+            // const name_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_name));
+            const receipt = yield con.methods.queryGroups().call();
+            return { "receipt": receipt };
+        });
+    }
     //0x12707fDE828feD188970a5Bb06f8F5B507A6f735
     //0xf809356dc8b9dd8f445906726ee30b898b4302854f219e4a5c053acc0b5eee23
     signMessage(address, message, password) {
@@ -78,6 +88,19 @@ let Users = class Users {
             return { "result": result };
         });
     }
+    // admin
+    queryadminContract(address) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const contractPath = path.join("./contract", "Admin.abi");
+            const abiJson = JSON.parse(fs.readFileSync(contractPath).toString());
+            logging_1.logger.info(`contractinfo : ${abiJson}`);
+            const BatchContract = "0xffffffffffffffffffffffffffffffffff02000c";
+            const con = new this.peer.base.Contract(abiJson, BatchContract);
+            const receipt = yield con.methods.admin().call();
+            logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
+            return { "receipts": receipt };
+        });
+    }
     //common/Admin.sol
     //0xffffffffffffffffffffffffffffffffff02000c
     adminContract(address) {
@@ -93,7 +116,7 @@ let Users = class Users {
         });
     }
     //update
-    updateadminContract(from, address) {
+    updateadminContract(from, privatekey, address) {
         return __awaiter(this, void 0, void 0, function* () {
             const contractPath = path.join("./contract", "Admin.abi");
             const contractinfo = JSON.parse(fs.readFileSync(contractPath).toString());
@@ -102,10 +125,10 @@ let Users = class Users {
             const blockNumber = yield this.peer.base.getBlockNumber();
             const metaData = yield this.peer.base.getMetaData();
             logging_1.logger.info(`metaData : ${JSON.stringify(metaData)}`);
-            const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
+            // const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
             const transaction = {
                 from: from,
-                privateKey: privateKey,
+                privateKey: privatekey,
                 nonce: 999999,
                 quota: 9999999,
                 version: metaData.version,
@@ -118,7 +141,7 @@ let Users = class Users {
         });
     }
     // 
-    //update
+    //new group
     newGroupContract(_origin, _name, _accounts) {
         return __awaiter(this, void 0, void 0, function* () {
             const conTx = this.getTransaction("GroupManagement.abi", "0xFFFffFFfffffFFfffFFffffFFFffFfFffF02000a");
@@ -130,7 +153,73 @@ let Users = class Users {
             return { "listener": listeners };
         });
     }
+    // deleteGroup
+    delGroupContract(_origin, _target) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const conTx = this.getTransaction("GroupManagement.abi", "0xFFFffFFfffffFFfffFFffffFFFffFfFffF02000a");
+            const con = (yield conTx).con;
+            const transaction = (yield conTx).tx;
+            const receipt = yield con.methods.deleteGroup(_origin, _target).send(transaction);
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
+        });
+    }
+    // updateGroupName
+    upgradeContract(_origin, _target, _name) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const conTx = this.getTransaction("GroupManagement.abi", "0xFFFffFFfffffFFfffFFffffFFFffFfFffF02000a");
+            const con = (yield conTx).con;
+            const transaction = (yield conTx).tx;
+            const name_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_name));
+            const receipt = yield con.methods.updateGroupName(_origin, _target, name_bytes).send(transaction);
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
+        });
+    }
+    //add account to group
+    addgroupContract(_origin, _target, _accounts) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const conTx = this.getTransaction("GroupManagement.abi", "0xFFFffFFfffffFFfffFFffffFFFffFfFffF02000a");
+            const con = (yield conTx).con;
+            const transaction = (yield conTx).tx;
+            // const name_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_name));
+            const receipt = yield con.methods.addAccounts(_origin, _target, _accounts).send(transaction);
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
+        });
+    }
+    //delete accounts from group
+    delaccountsGroupContract(_origin, _target, _accounts) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const conTx = this.getTransaction("GroupManagement.abi", "0xFFFffFFfffffFFfffFFffffFFFffFfFffF02000a");
+            const con = (yield conTx).con;
+            const transaction = (yield conTx).tx;
+            // const name_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_name));
+            const receipt = yield con.methods.deleteAccounts(_origin, _target, _accounts).send(transaction);
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
+        });
+    }
+    // updateGroupName
+    queryGroupContract() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const conTx = this.getTransaction("GroupManagement.abi", "0xFFFffFFfffffFFfffFFffffFFFffFfFffF02000a");
+            const con = (yield conTx).con;
+            // const transaction = (await conTx).tx;
+            // const name_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_name));
+            const receipt = yield con.methods.queryGroups().call();
+            // const listeners = await this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "receipt": receipt };
+        });
+    }
 };
+__decorate([
+    routing_controllers_1.Get('/querygroups'),
+    routing_controllers_1.ContentType("application/json"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], Users.prototype, "getGroups", null);
 __decorate([
     routing_controllers_1.Post('/sign'),
     routing_controllers_1.ContentType("application/json"),
@@ -156,6 +245,14 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], Users.prototype, "unlockAddress", null);
 __decorate([
+    routing_controllers_1.Post('/admin'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("address")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], Users.prototype, "queryadminContract", null);
+__decorate([
     routing_controllers_1.Post('/isadmin'),
     routing_controllers_1.ContentType("application/json"),
     __param(0, routing_controllers_1.BodyParam("address")),
@@ -167,9 +264,10 @@ __decorate([
     routing_controllers_1.Post('/updateadmin'),
     routing_controllers_1.ContentType("application/json"),
     __param(0, routing_controllers_1.BodyParam("from")),
-    __param(1, routing_controllers_1.BodyParam("address")),
+    __param(1, routing_controllers_1.BodyParam("privatekey")),
+    __param(2, routing_controllers_1.BodyParam("address")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", Promise)
 ], Users.prototype, "updateadminContract", null);
 __decorate([
@@ -182,6 +280,52 @@ __decorate([
     __metadata("design:paramtypes", [String, String, Array]),
     __metadata("design:returntype", Promise)
 ], Users.prototype, "newGroupContract", null);
+__decorate([
+    routing_controllers_1.Post('/delgroup'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("origin")),
+    __param(1, routing_controllers_1.BodyParam("target")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", Promise)
+], Users.prototype, "delGroupContract", null);
+__decorate([
+    routing_controllers_1.Post('/upgradegroup'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("origin")),
+    __param(1, routing_controllers_1.BodyParam("target")),
+    __param(2, routing_controllers_1.BodyParam("name")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", Promise)
+], Users.prototype, "upgradeContract", null);
+__decorate([
+    routing_controllers_1.Post('/addaccountsgroup'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("origin")),
+    __param(1, routing_controllers_1.BodyParam("target")),
+    __param(2, routing_controllers_1.BodyParam("accounts")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Array]),
+    __metadata("design:returntype", Promise)
+], Users.prototype, "addgroupContract", null);
+__decorate([
+    routing_controllers_1.Post('/delaccountsgroup'),
+    routing_controllers_1.ContentType("application/json"),
+    __param(0, routing_controllers_1.BodyParam("origin")),
+    __param(1, routing_controllers_1.BodyParam("target")),
+    __param(2, routing_controllers_1.BodyParam("accounts")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, Array]),
+    __metadata("design:returntype", Promise)
+], Users.prototype, "delaccountsGroupContract", null);
+__decorate([
+    routing_controllers_1.Post('/querygroups'),
+    routing_controllers_1.ContentType("application/json"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], Users.prototype, "queryGroupContract", null);
 Users = __decorate([
     routing_controllers_1.JsonController("/personal"),
     __metadata("design:paramtypes", [])
