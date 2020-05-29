@@ -243,17 +243,18 @@ export class SysController {
     @ContentType("application/json")
     async roleContract(
       @BodyParam("role") _role:string,
-      @BodyParam("addresses") _addrs:String[]
+      @BodyParam("addresses") _addrs:string[]
     ) {
 
       const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
       const con = (await contx).con;
       const transaction = (await contx).tx;
-       
-        const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
-        const receipt = await con.methods.newRole(role_bytes,_addrs).send(transaction);
-        logger.info(`receipt:${JSON.stringify(receipt)}`)
-        return {"receipts":receipt};
+      const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
+      // const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
+      const receipt = await con.methods.newRole(role_bytes,_addrs).send(transaction);
+      logger.info(`receipt:${JSON.stringify(receipt)}`)
+      const listeners = await this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+      return {"listener":listeners};
     }
 
     @Post('/deleterole')
@@ -269,7 +270,8 @@ export class SysController {
         const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
         const receipt = await con.methods.deleteRole(role_bytes).send(transaction);
         logger.info(`receipt:${JSON.stringify(receipt)}`)
-        return {"receipts":receipt};
+        const listeners = await this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+      return {"listener":listeners};
     }
     //updateRoleName
 
@@ -287,7 +289,8 @@ export class SysController {
         const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
         const receipt = await con.methods.updateRoleName(_addr_role,role_bytes).send(transaction);
         logger.info(`receipt:${JSON.stringify(receipt)}`)
-        return {"receipts":receipt};
+        const listeners = await this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+      return {"listener":listeners};
     }
 
     //addPermissions
@@ -296,7 +299,7 @@ export class SysController {
     @ContentType("application/json")
     async addPermissionContract(
       @BodyParam("addrole") _addr_role:string,
-      @BodyParam("addrs") _addrs:String[]
+      @BodyParam("addrs") _addrs:string[]
     ) {
 
       const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
@@ -306,7 +309,8 @@ export class SysController {
         //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
         const receipt = await con.methods.addPermissions(_addr_role,_addrs).send(transaction);
         logger.info(`receipt:${JSON.stringify(receipt)}`)
-        return {"receipts":receipt};
+        const listeners = await this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+      return {"listener":listeners};
     }
 
     //deletePermissions
@@ -324,7 +328,8 @@ export class SysController {
         //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
         const receipt = await con.methods.deletePermissions(_addr_role,_addrs).send(transaction);
         logger.info(`receipt:${JSON.stringify(receipt)}`)
-        return {"receipts":receipt};
+        const listeners = await this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+      return {"listener":listeners};
     }
 
 
@@ -341,7 +346,8 @@ export class SysController {
         //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
         const receipt = await con.methods.cancelRole(_account,_role).send(transaction);
         logger.info(`receipt:${JSON.stringify(receipt)}`)
-        return {"receipts":receipt};
+        const listeners = await this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+      return {"listener":listeners};
     }
 
 
@@ -357,6 +363,7 @@ export class SysController {
         //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
         const receipt = await con.methods.clearRole(_account).send(transaction);
         logger.info(`receipt:${JSON.stringify(receipt)}`)
-        return {"receipts":receipt};
+        const listeners = await this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+      return {"listener":listeners};
     }
 }

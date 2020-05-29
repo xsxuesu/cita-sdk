@@ -223,9 +223,11 @@ let SysController = class SysController {
             const con = (yield contx).con;
             const transaction = (yield contx).tx;
             const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
+            // const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
             const receipt = yield con.methods.newRole(role_bytes, _addrs).send(transaction);
             logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
-            return { "receipts": receipt };
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
         });
     }
     delroleContract(_role) {
@@ -236,7 +238,8 @@ let SysController = class SysController {
             const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
             const receipt = yield con.methods.deleteRole(role_bytes).send(transaction);
             logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
-            return { "receipts": receipt };
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
         });
     }
     //updateRoleName
@@ -248,7 +251,8 @@ let SysController = class SysController {
             const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
             const receipt = yield con.methods.updateRoleName(_addr_role, role_bytes).send(transaction);
             logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
-            return { "receipts": receipt };
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
         });
     }
     //addPermissions
@@ -260,7 +264,8 @@ let SysController = class SysController {
             //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
             const receipt = yield con.methods.addPermissions(_addr_role, _addrs).send(transaction);
             logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
-            return { "receipts": receipt };
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
         });
     }
     //deletePermissions
@@ -272,7 +277,8 @@ let SysController = class SysController {
             //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
             const receipt = yield con.methods.deletePermissions(_addr_role, _addrs).send(transaction);
             logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
-            return { "receipts": receipt };
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
         });
     }
     //deletePermissions
@@ -284,7 +290,8 @@ let SysController = class SysController {
             //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
             const receipt = yield con.methods.cancelRole(_account, _role).send(transaction);
             logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
-            return { "receipts": receipt };
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
         });
     }
     //clearRole
@@ -296,7 +303,8 @@ let SysController = class SysController {
             //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
             const receipt = yield con.methods.clearRole(_account).send(transaction);
             logging_1.logger.info(`receipt:${JSON.stringify(receipt)}`);
-            return { "receipts": receipt };
+            const listeners = yield this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+            return { "listener": listeners };
         });
     }
 };
