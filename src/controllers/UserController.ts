@@ -1,4 +1,4 @@
-import {Post,BodyParam ,JsonController,ContentType} from 'routing-controllers';
+import {Post,BodyParam ,JsonController,ContentType, Get} from 'routing-controllers';
 import * as config from 'config';
 import * as Peer from '../config/Peer';
 import { logger } from '../common/logging';
@@ -36,6 +36,18 @@ export class Users {
           value: '0x0',
         };
         return {"con":con,"tx":transaction};
+    }
+
+
+    //queryGroups
+    @Get('/querygroups')
+    @ContentType("application/json")
+    async getGroups() {
+      const conTx = this.getTransaction("GroupManagement.abi","0xFFFffFFfffffFFfffFFffffFFFffFfFffF02000a");
+      const con = (await conTx).con;
+      // const name_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_name));
+      const receipt = await con.methods.queryGroups().call();
+      return {"receipt":receipt};
     }
 
     //0x12707fDE828feD188970a5Bb06f8F5B507A6f735
@@ -113,7 +125,7 @@ export class Users {
     }
 
     // 
-    //update
+    //new group
     @Post('/newgroup')
     @ContentType("application/json")
     async newGroupContract(
@@ -129,12 +141,73 @@ export class Users {
       const listeners = await this.peer.listeners.listenToTransactionReceipt(receipt.hash);
       return {"listener":listeners};
     }
-//RoleCreator:
-    //address: '0xffffffffffffffffffffffffffffffffff020008'
-    //file: role_management/RoleCreator.sol
 
+    // deleteGroup
+    @Post('/delgroup')
+    @ContentType("application/json")
+    async delGroupContract(
+        @BodyParam("origin") _origin: string,
+        @BodyParam("target") _target: string
+    ) {
+      const conTx = this.getTransaction("GroupManagement.abi","0xFFFffFFfffffFFfffFFffffFFFffFfFffF02000a");
+      const con = (await conTx).con;
+      const transaction = (await conTx).tx;
+  
+      const receipt = await con.methods.deleteGroup(_origin,_target).send(transaction);
+      const listeners = await this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+      return {"listener":listeners};
+    }
 
+    // updateGroupName
+    @Post('/upgradegroup')
+    @ContentType("application/json")
+    async upgradeContract(
+        @BodyParam("origin") _origin: string,
+        @BodyParam("target") _target: string,
+        @BodyParam("name") _name: string
+    ) {
+      const conTx = this.getTransaction("GroupManagement.abi","0xFFFffFFfffffFFfffFFffffFFFffFfFffF02000a");
+      const con = (await conTx).con;
+      const transaction = (await conTx).tx;
+      const name_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_name));
+      const receipt = await con.methods.updateGroupName(_origin,_target,name_bytes).send(transaction);
+      const listeners = await this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+      return {"listener":listeners};
+    }
+    
+    //add account to group
+    @Post('/addaccountsgroup')
+    @ContentType("application/json")
+    async addgroupContract(
+        @BodyParam("origin") _origin: string,
+        @BodyParam("target") _target: string,
+        @BodyParam("accounts") _accounts: string[]
+    ) {
+      const conTx = this.getTransaction("GroupManagement.abi","0xFFFffFFfffffFFfffFFffffFFFffFfFffF02000a");
+      const con = (await conTx).con;
+      const transaction = (await conTx).tx;
+      // const name_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_name));
+      const receipt = await con.methods.addAccounts(_origin,_target,_accounts).send(transaction);
+      const listeners = await this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+      return {"listener":listeners};
+    }
 
+    //delete accounts from group
+    @Post('/delaccountsgroup')
+    @ContentType("application/json")
+    async delaccountsGroupContract(
+        @BodyParam("origin") _origin: string,
+        @BodyParam("target") _target: string,
+        @BodyParam("accounts") _accounts: string[]
+    ) {
+      const conTx = this.getTransaction("GroupManagement.abi","0xFFFffFFfffffFFfffFFffffFFFffFfFffF02000a");
+      const con = (await conTx).con;
+      const transaction = (await conTx).tx;
+      // const name_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_name));
+      const receipt = await con.methods.deleteAccounts(_origin,_target,_accounts).send(transaction);
+      const listeners = await this.peer.listeners.listenToTransactionReceipt(receipt.hash);
+      return {"listener":listeners};
+    }
 
 
 //     name	permission

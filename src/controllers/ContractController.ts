@@ -15,8 +15,6 @@ export class ContractController {
         logger.info(`had connected on peer : ${config.get('Peer.Url').toString()}`);
     }
 
-    
-
     @Post('/deploy')
     @ContentType("application/json")
     async deployContract(@BodyParam("contract") contractname:string,@BodyParam("from") from:string,@BodyParam("password") password:string

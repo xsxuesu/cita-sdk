@@ -63,7 +63,26 @@ export class SysController {
         return {"receipt":receipt};
     }
 
+    @Post('/cancelpermissiontx')
+    @ContentType("application/json")
+    async canceltxContract(@BodyParam("address") address: string) {
+        const contx = this.getConTx("PermissionManagement.abi","0xffffffffffffffffffffffffffffffffff020004");
+        const con = (await contx).con;
+        const transaction = (await contx).tx;
+        const receipt = await con.methods.cancelAuthorizations(address,["ffffffffffffffffffffffffffffffffff021000"]).send(transaction);
+        return {"receipt":receipt};
+    }
 
+    @Post('/cancelpermissioncontract')
+    @ContentType("application/json")
+    async cancelContract(@BodyParam("address") address: string) {
+        const contx = this.getConTx("PermissionManagement.abi","0xffffffffffffffffffffffffffffffffff020004");
+        const con = (await contx).con;
+        const transaction = (await contx).tx;
+        const receipt = await con.methods.cancelAuthorizations(address,["ffffffffffffffffffffffffffffffffff021001"]).send(transaction);
+        return {"receipt":receipt};
+    }
+    
     @Post('/multitx')
     @ContentType("application/json")
     async multitxContract(
