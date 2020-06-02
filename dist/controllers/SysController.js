@@ -47,6 +47,7 @@ let SysController = class SysController {
             const metaData = yield this.peer.base.getMetaData();
             logging_1.logger.info(`metaData : ${JSON.stringify(metaData)}`);
             const blockNumber = yield this.peer.base.getBlockNumber();
+            logging_1.logger.info(`from : ${from}`);
             const transaction = {
                 from: from,
                 privateKey: privateKey,

@@ -6,6 +6,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as web3 from 'web3';
 import * as abi from 'web3-eth-abi';
+import * as web3_acc from 'web3-eth-accounts';
 import { UV_UDP_REUSEADDR } from 'constants';
 
 @JsonController("/sys")
@@ -15,7 +16,7 @@ export class SysController {
         let SDK = new Peer.Peer();
         this.peer = SDK.peer;
         logger.info(`had connected on peer : ${config.get('Peer.Url').toString()}`);
-    }
+      }
 
     async getConTx(abi:string,addr:string){
       // logger.info(`contractname : ${contractname}`);
@@ -29,7 +30,7 @@ export class SysController {
       const metaData = await this.peer.base.getMetaData();
       logger.info(`metaData : ${JSON.stringify(metaData)}`);
       const blockNumber = await this.peer.base.getBlockNumber();
-
+      logger.info(`from : ${from}`);
       const transaction = {
         from: from,
         privateKey:privateKey,
@@ -200,9 +201,9 @@ export class SysController {
       @BodyParam("chainname") _chainname:string
     ) {
 
-      const contx = this.getConTx("SysConfig.abi","0xFFfffFFfFfFffFFfFFfffFffFfFFFffFFf020000");
-      const con = (await contx).con;
-      const transaction = (await contx).tx;
+        const contx = this.getConTx("SysConfig.abi","0xFFfffFFfFfFffFFfFFfffFffFfFFFffFFf020000");
+        const con = (await contx).con;
+        const transaction = (await contx).tx;
        
         const receipt = await con.methods.setChainName(_chainname).send(transaction);
         logger.info(`receipt:${JSON.stringify(receipt)}`)
@@ -215,9 +216,9 @@ export class SysController {
       @BodyParam("operator") _operator:string
     ) {
 
-      const contx = this.getConTx("SysConfig.abi","0xFFfffFFfFfFffFFfFFfffFffFfFFFffFFf020000");
-      const con = (await contx).con;
-      const transaction = (await contx).tx;
+        const contx = this.getConTx("SysConfig.abi","0xFFfffFFfFfFffFFfFFfffFffFfFFFffFFf020000");
+        const con = (await contx).con;
+        const transaction = (await contx).tx;
        
         const receipt = await con.methods.setOperator(_operator).send(transaction);
         logger.info(`receipt:${JSON.stringify(receipt)}`)
@@ -230,9 +231,9 @@ export class SysController {
       @BodyParam("version") _version:Number
     ) {
 
-      const contx = this.getConTx("VersionManager.abi","0xFffFffFffFfFFfFfffFffffffffFffFfFF021028");
-      const con = (await contx).con;
-      const transaction = (await contx).tx;
+        const contx = this.getConTx("VersionManager.abi","0xFffFffFffFfFFfFfffFffffffffFffFfFF021028");
+        const con = (await contx).con;
+        const transaction = (await contx).tx;
         
         const receipt = await con.methods.setVersion(_version).send(transaction);
         logger.info(`receipt:${JSON.stringify(receipt)}`)
@@ -263,9 +264,9 @@ export class SysController {
       @BodyParam("role") _role:string
     ) {
 
-      const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
-      const con = (await contx).con;
-      const transaction = (await contx).tx;
+        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
+        const con = (await contx).con;
+        const transaction = (await contx).tx;
      
         const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
         const receipt = await con.methods.deleteRole(role_bytes).send(transaction);
@@ -282,9 +283,9 @@ export class SysController {
       @BodyParam("role") _role:string
     ) {
 
-      const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
-      const con = (await contx).con;
-      const transaction = (await contx).tx;
+        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
+        const con = (await contx).con;
+        const transaction = (await contx).tx;
       
         const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
         const receipt = await con.methods.updateRoleName(_addr_role,role_bytes).send(transaction);
@@ -302,9 +303,9 @@ export class SysController {
       @BodyParam("addrs") _addrs:string[]
     ) {
 
-      const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
-      const con = (await contx).con;
-      const transaction = (await contx).tx;
+        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
+        const con = (await contx).con;
+        const transaction = (await contx).tx;
       
         //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
         const receipt = await con.methods.addPermissions(_addr_role,_addrs).send(transaction);
@@ -321,9 +322,9 @@ export class SysController {
       @BodyParam("addrs") _addrs:String[]
     ) {
 
-      const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
-      const con = (await contx).con;
-      const transaction = (await contx).tx;
+        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
+        const con = (await contx).con;
+        const transaction = (await contx).tx;
       
         //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
         const receipt = await con.methods.deletePermissions(_addr_role,_addrs).send(transaction);
@@ -340,9 +341,9 @@ export class SysController {
       @BodyParam("account") _account:string,
       @BodyParam("role") _role:string
     ) {
-      const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
-      const con = (await contx).con;
-      const transaction = (await contx).tx;
+        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
+        const con = (await contx).con;
+        const transaction = (await contx).tx;
         //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
         const receipt = await con.methods.cancelRole(_account,_role).send(transaction);
         logger.info(`receipt:${JSON.stringify(receipt)}`)
@@ -357,13 +358,13 @@ export class SysController {
     async clearRoleContract(
       @BodyParam("account") _account:string
     ) {
-      const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
-      const con = (await contx).con;
-      const transaction = (await contx).tx;
+        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
+        const con = (await contx).con;
+        const transaction = (await contx).tx;
         //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
         const receipt = await con.methods.clearRole(_account).send(transaction);
         logger.info(`receipt:${JSON.stringify(receipt)}`)
         const listeners = await this.peer.listeners.listenToTransactionReceipt(receipt.hash);
-      return {"listener":listeners};
+        return {"listener":listeners};
     }
 }
