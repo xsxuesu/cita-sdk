@@ -4,7 +4,7 @@ import * as config from 'config';
 import { logger } from '../common/logging';
 import * as path from 'path';
 import * as fs from 'fs';
-import * as web3 from 'web3';
+import * as web3 from 'web3-utils';
 
 @JsonController("/contract")
 export class ContractController {
@@ -30,6 +30,7 @@ export class ContractController {
         // const result = this.peer.base.personal.unlockAccount(from, password);
         const newContract = new this.peer.base.Contract(abiJson);
         const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
+        // const privateKey = '0xf935e887741ed93666b8af662f3714ea67f2f5e74cef7907fee4ce7dc49e2e60';
 
         const metaData = await this.peer.base.getMetaData();
         logger.info(`metaData : ${JSON.stringify(metaData)}`);

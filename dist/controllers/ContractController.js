@@ -26,7 +26,7 @@ const config = require("config");
 const logging_1 = require("../common/logging");
 const path = require("path");
 const fs = require("fs");
-const web3 = require("web3");
+const web3 = require("web3-utils");
 let ContractController = class ContractController {
     constructor() {
         let SDK = new Peer.Peer();
@@ -45,6 +45,7 @@ let ContractController = class ContractController {
             // const result = this.peer.base.personal.unlockAccount(from, password);
             const newContract = new this.peer.base.Contract(abiJson);
             const privateKey = '0xf97a6a9cfeade639d798f005ad9d8a43241f5799cddad7bb331de89ae297dbe1';
+            // const privateKey = '0xf935e887741ed93666b8af662f3714ea67f2f5e74cef7907fee4ce7dc49e2e60';
             const metaData = yield this.peer.base.getMetaData();
             logging_1.logger.info(`metaData : ${JSON.stringify(metaData)}`);
             const blockNumber = yield this.peer.base.getBlockNumber();
