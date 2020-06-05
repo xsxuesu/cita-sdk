@@ -4,7 +4,7 @@ import * as config from 'config';
 import { logger } from '../common/logging';
 import * as path from 'path';
 import * as fs from 'fs';
-import * as web3 from 'web3-utils';
+import * as web3 from 'web3';
 
 @JsonController("/contract")
 export class ContractController {
