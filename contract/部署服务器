@@ -1,0 +1,28 @@
+bin/cita create —super_admin "0x141d051b1b1922bf686f5df8aad45cefbcb0b696" —nodes "10.60.178.53:4000,10.60.178.54:4000,10.60.178.55:4000,10.60.178.56:4000"
+
+mkdir -p /data/cita
+
+scp -r cita_secp256k1_sha3 10.60.178.53:/data/cita
+scp -r cita_secp256k1_sha3 10.60.178.54:/data/cita
+scp -r cita_secp256k1_sha3 10.60.178.55:/data/cita
+scp -r cita_secp256k1_sha3 10.60.178.56:/data/cita
+
+ssh root@10.60.178.53
+cd /data/cita/cita_secp256k1_sha3
+./bin/cita setup test-chain/0
+./bin/cita start test-chain/0
+
+ssh root@10.60.178.54
+cd /data/cita/cita_secp256k1_sha3
+./bin/cita setup test-chain/1
+./bin/cita start test-chain/1
+
+ssh root@10.60.178.55
+cd /data/cita/cita_secp256k1_sha3
+./bin/cita setup test-chain/2
+./bin/cita start test-chain/2
+
+ssh root@10.60.178.56
+cd /data/cita/cita_secp256k1_sha3
+./bin/cita setup test-chain/3
+./bin/cita start test-chain/3
