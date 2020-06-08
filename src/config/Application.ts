@@ -9,16 +9,16 @@ export class Application {
 
   constructor()  {
     this.express = new ExpressConfig();
-    
-    const port = config.get('express.port');
+    const http:string = config.get('express.http');
+    const port:number = config.get('express.port');
     // const port = "8080";
-    this.server = this.express.app.listen(port, () => {
+    this.server = this.express.app.listen(port,http, () => {
       logger.info(`
         ------------
         Server Started!
-        Express: http://localhost:${port}
-        Swagger Docs: http://localhost:${port}/docs
-        Swagger Spec: http://localhost:${port}/api-docs
+        Express: http://${http}:${port}
+        Swagger Docs: http://${http}:${port}/docs
+        Swagger Spec: http://${http}:${port}/api-docs
         ------------
       `);
     });

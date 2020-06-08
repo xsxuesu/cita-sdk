@@ -1,5 +1,6 @@
 {
     "express": {
+        "http":"0.0.0.0",
         "port": 8080
     },
     "ports":{
@@ -14,7 +15,7 @@
     },
     "LogLevel": "info",
     "adminAddress":"0x37D1C7449BFe76fe9c445e626da06265E9377601",
-    "adminPrivateKey":"0x3ef2627393529fed043c7dbfd9358a4ae47a88a59949b07e7631722fd6959002"
-    // "adminAddress":"0xd77f0e4d7a7cc6b44d8b231b82d419d64f8a8184",
-    // "adminPrivateKey":"0xf935e887741ed93666b8af662f3714ea67f2f5e74cef7907fee4ce7dc49e2e60"
+    "adminPrivateKey":"0x3ef2627393529fed043c7dbfd9358a4ae47a88a59949b07e7631722fd6959002",
+    "adminAddressremote":"0xd77f0e4d7a7cc6b44d8b231b82d419d64f8a8184",
+    "adminPrivateKeyremote":"0xf935e887741ed93666b8af662f3714ea67f2f5e74cef7907fee4ce7dc49e2e60"
   }
