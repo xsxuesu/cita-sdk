@@ -6,30 +6,16 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as web3 from 'web3';
 
-@JsonController("/demo")
-export class DemoController {
+@JsonController("/sm2")
+export class Sm2Controller {
     peer: any;
     addr:string;
     abi:string;
-    privateKey:string;
-    from:string;
-    remote:boolean;
     constructor() {
         let SDK = new Peer.Peer();
         this.peer = SDK.peer;
+        this.addr = "0x56439a0e50eD84126863e1dBd8D6D6eE8949b950";
         this.abi = "FactoryInfo.json";
-
-        this.remote = SDK.remote;
-        if (this.remote == true){
-          this.privateKey = config.get('adminPrivateKeySm2').toString();
-          this.from = config.get('adminAddressSm2').toString();
-          this.addr = "0xB4482582746089254531F8fE0AE8EfeeAd29899b";
-        }else{
-          this.privateKey = config.get('remotePrivateKey').toString();
-          this.from = config.get('remoteAddress').toString();
-          this.addr = "0x06218505BF6cD4d114c79a40889C0E4e5c5E841A";
-        }
-
         logger.info(`had connected on peer : ${config.get('Peer.Url').toString()}`);
     }
     
@@ -53,7 +39,7 @@ export class DemoController {
           version: metaData.version,
           validUntilBlock: blockNumber+30,
           value: '0x0',
-          cryptoTx:1,
+          cryptoTx:0,
         };
         return {"con":con,"tx":transaction};
       }
@@ -65,8 +51,8 @@ export class DemoController {
           @BodyParam("privatekey") privatekey:string,
           @BodyParam("from") from:string){
         if (privatekey == ""){
-          privatekey = this.privateKey;
-          from = this.from;
+          privatekey = config.get('adminPrivateKey').toString();
+          from = config.get('adminAddress').toString();
         }
         const contx = this.getConTx(this.abi,this.addr,privatekey,from);
         const con = (await contx).con;
@@ -89,8 +75,8 @@ export class DemoController {
         @BodyParam("privatekey") privatekey:string,
         @BodyParam("from") from:string){
       if (privatekey == ""){
-        privatekey = this.privateKey;
-          from = this.from;
+        privatekey = config.get('adminPrivateKey').toString();
+        from = config.get('adminAddress').toString();
       }
       const contx = this.getConTx(this.abi,this.addr,privatekey,from);
       const con = (await contx).con;
@@ -118,8 +104,8 @@ export class DemoController {
         @BodyParam("privatekey") privatekey:string,
         @BodyParam("from") from:string){
       if (privatekey == ""){
-        privatekey = this.privateKey;
-          from = this.from;
+        privatekey = config.get('adminPrivateKey').toString();
+        from = config.get('adminAddress').toString();
       }
       const contx = this.getConTx(this.abi,this.addr,privatekey,from);
       const con = (await contx).con;
@@ -138,8 +124,8 @@ export class DemoController {
     @ContentType("application/json")
     async getAllinfo(
         @BodyParam("id") _id: string){
-       const   privatekey = this.privateKey;
-       const  from = this.from;
+      const privatekey = config.get('adminPrivateKey').toString();
+      const from = config.get('adminAddress').toString();
       const contx = this.getConTx(this.abi,this.addr,privatekey,from);
       const con = (await contx).con;
       const id_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_id));

@@ -11,11 +11,14 @@
         "jwt_secret": "supersecret"
     },
     "Peer": {
-      "Url": "http://127.0.0.1:1337"
+      "Url": "http://10.60.178.53:1337"
     },
     "LogLevel": "info",
+    "Remote":true,
     "adminAddress":"0x37D1C7449BFe76fe9c445e626da06265E9377601",
     "adminPrivateKey":"0x3ef2627393529fed043c7dbfd9358a4ae47a88a59949b07e7631722fd6959002",
-    "adminAddressremote":"0xd77f0e4d7a7cc6b44d8b231b82d419d64f8a8184",
-    "adminPrivateKeyremote":"0xf935e887741ed93666b8af662f3714ea67f2f5e74cef7907fee4ce7dc49e2e60"
+    "remoteAddress":"0xd77f0e4d7a7cc6b44d8b231b82d419d64f8a8184",
+    "remotePrivateKey":"0xf935e887741ed93666b8af662f3714ea67f2f5e74cef7907fee4ce7dc49e2e60",
+    "adminAddressSm2":"0x1ebd3feb92d91fed43722d3294f0c74db50b54f0",
+    "adminPrivateKeySm2":"0x69ac1007baf4126622d3d504d3afcd03b0c030e8e4c7f98344a110bb05f7b29b"
   }

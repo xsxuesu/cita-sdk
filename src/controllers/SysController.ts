@@ -12,33 +12,43 @@ import { UV_UDP_REUSEADDR } from 'constants';
 @JsonController("/sys")
 export class SysController {
     peer: any;
+    privateKey:string;
+    from:string;
+    remote:boolean;
     constructor() {
         let SDK = new Peer.Peer();
         this.peer = SDK.peer;
+        this.remote = SDK.remote;
+        if (this.remote == true){
+          this.privateKey = config.get('adminPrivateKey').toString();
+          this.from = config.get('adminAddress').toString();
+        }else{
+          this.privateKey = config.get('remotePrivateKey').toString();
+          this.from = config.get('remoteAddress').toString();
+        }
         logger.info(`had connected on peer : ${config.get('Peer.Url').toString()}`);
       }
 
-    async getConTx(abi:string,addr:string){
+    async getConTx(abi:string,addr:string,crypto:number){
       // logger.info(`contractname : ${contractname}`);
       const contractPath = path.join("./contract",abi);
       // logger.info(`contractinfo : ${fs.readFileSync(contractPath).toString()}`);
       const abiJson = JSON.parse(fs.readFileSync(contractPath).toString());
       // logger.info(`contractinfo : ${abiJson}`);
       const con = new this.peer.base.Contract(abiJson, addr);
-      const privateKey = config.get('adminPrivateKey').toString();
-      const from = config.get('adminAddress').toString();
+      
       const metaData = await this.peer.base.getMetaData();
       logger.info(`metaData : ${JSON.stringify(metaData)}`);
       const blockNumber = await this.peer.base.getBlockNumber();
-      logger.info(`from : ${from}`);
       const transaction = {
-        from: from,
-        privateKey:privateKey,
+        from: this.from,
+        privateKey:this.privateKey,
         nonce: 999999,
         quota: 999999,
         version: metaData.version,
         validUntilBlock: blockNumber+30,
         value: '0x0',
+        cryptoTx:crypto,
       };
       return {"con":con,"tx":transaction};
     }
@@ -46,7 +56,7 @@ export class SysController {
     @Post('/permissiontx')
     @ContentType("application/json")
     async txContract(@BodyParam("address") address: string) {
-      const contx = this.getConTx("PermissionManagement.abi","0xffffffffffffffffffffffffffffffffff020004");
+      const contx = this.getConTx("PermissionManagement.abi","0xffffffffffffffffffffffffffffffffff020004",1);
       const con = (await contx).con;
       const transaction = (await contx).tx;
       const receipt = await con.methods.setAuthorizations(address,["ffffffffffffffffffffffffffffffffff021000"]).send(transaction);
@@ -57,7 +67,7 @@ export class SysController {
     @Post('/permissioncontract')
     @ContentType("application/json")
     async deployContract(@BodyParam("address") address: string) {
-        const contx = this.getConTx("PermissionManagement.abi","0xffffffffffffffffffffffffffffffffff020004");
+        const contx = this.getConTx("PermissionManagement.abi","0xffffffffffffffffffffffffffffffffff020004",1);
         const con = (await contx).con;
         const transaction = (await contx).tx;
         const receipt = await con.methods.setAuthorizations(address,["ffffffffffffffffffffffffffffffffff021001"]).send(transaction);
@@ -67,7 +77,7 @@ export class SysController {
     @Post('/cancelpermissiontx')
     @ContentType("application/json")
     async canceltxContract(@BodyParam("address") address: string) {
-        const contx = this.getConTx("PermissionManagement.abi","0xffffffffffffffffffffffffffffffffff020004");
+        const contx = this.getConTx("PermissionManagement.abi","0xffffffffffffffffffffffffffffffffff020004",1);
         const con = (await contx).con;
         const transaction = (await contx).tx;
         const receipt = await con.methods.cancelAuthorizations(address,["ffffffffffffffffffffffffffffffffff021000"]).send(transaction);
@@ -77,7 +87,7 @@ export class SysController {
     @Post('/cancelpermissioncontract')
     @ContentType("application/json")
     async cancelContract(@BodyParam("address") address: string) {
-        const contx = this.getConTx("PermissionManagement.abi","0xffffffffffffffffffffffffffffffffff020004");
+        const contx = this.getConTx("PermissionManagement.abi","0xffffffffffffffffffffffffffffffffff020004",1);
         const con = (await contx).con;
         const transaction = (await contx).tx;
         const receipt = await con.methods.cancelAuthorizations(address,["ffffffffffffffffffffffffffffffffff021001"]).send(transaction);
@@ -91,7 +101,7 @@ export class SysController {
       @BodyParam("values") _values:Number[]
     ) {
 
-        const contx = this.getConTx("BatchTx.abi","0xffffffffffffffffffffffffffffffffff02000e");
+        const contx = this.getConTx("BatchTx.abi","0xffffffffffffffffffffffffffffffffff02000e",1);
         const con = (await contx).con;
         const transaction = (await contx).tx;
        
@@ -141,7 +151,7 @@ export class SysController {
       @BodyParam("values") _values:String[]
     ) {
 
-        const contx = this.getConTx("BatchTx.abi","0xffffffffffffffffffffffffffffffffff02000e");
+        const contx = this.getConTx("BatchTx.abi","0xffffffffffffffffffffffffffffffffff02000e",1);
         const con = (await contx).con;
         const transaction = (await contx).tx;
        
@@ -186,7 +196,7 @@ export class SysController {
       @BodyParam("website") _website:string
     ) {
 
-        const contx = this.getConTx("SysConfig.abi","0xFFfffFFfFfFffFFfFFfffFffFfFFFffFFf020000");
+        const contx = this.getConTx("SysConfig.abi","0xFFfffFFfFfFffFFfFFfffFffFfFFFffFFf020000",1);
         const con = (await contx).con;
         const transaction = (await contx).tx;
         
@@ -201,7 +211,7 @@ export class SysController {
       @BodyParam("chainname") _chainname:string
     ) {
 
-        const contx = this.getConTx("SysConfig.abi","0xFFfffFFfFfFffFFfFFfffFffFfFFFffFFf020000");
+        const contx = this.getConTx("SysConfig.abi","0xFFfffFFfFfFffFFfFFfffFffFfFFFffFFf020000",1);
         const con = (await contx).con;
         const transaction = (await contx).tx;
        
@@ -216,7 +226,7 @@ export class SysController {
       @BodyParam("operator") _operator:string
     ) {
 
-        const contx = this.getConTx("SysConfig.abi","0xFFfffFFfFfFffFFfFFfffFffFfFFFffFFf020000");
+        const contx = this.getConTx("SysConfig.abi","0xFFfffFFfFfFffFFfFFfffFffFfFFFffFFf020000",1);
         const con = (await contx).con;
         const transaction = (await contx).tx;
        
@@ -231,7 +241,7 @@ export class SysController {
       @BodyParam("version") _version:Number
     ) {
 
-        const contx = this.getConTx("VersionManager.abi","0xFffFffFffFfFFfFfffFffffffffFffFfFF021028");
+        const contx = this.getConTx("VersionManager.abi","0xFffFffFffFfFFfFfffFffffffffFffFfFF021028",1);
         const con = (await contx).con;
         const transaction = (await contx).tx;
         
@@ -247,7 +257,7 @@ export class SysController {
       @BodyParam("addresses") _addrs:string[]
     ) {
 
-      const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
+      const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007",1);
       const con = (await contx).con;
       const transaction = (await contx).tx;
       const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
@@ -264,7 +274,7 @@ export class SysController {
       @BodyParam("role") _role:string
     ) {
 
-        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
+        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007",1);
         const con = (await contx).con;
         const transaction = (await contx).tx;
      
@@ -283,7 +293,7 @@ export class SysController {
       @BodyParam("role") _role:string
     ) {
 
-        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
+        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007",1);
         const con = (await contx).con;
         const transaction = (await contx).tx;
       
@@ -303,7 +313,7 @@ export class SysController {
       @BodyParam("addrs") _addrs:string[]
     ) {
 
-        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
+        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007",1);
         const con = (await contx).con;
         const transaction = (await contx).tx;
       
@@ -322,7 +332,7 @@ export class SysController {
       @BodyParam("addrs") _addrs:String[]
     ) {
 
-        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
+        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007",1);
         const con = (await contx).con;
         const transaction = (await contx).tx;
       
@@ -341,7 +351,7 @@ export class SysController {
       @BodyParam("account") _account:string,
       @BodyParam("role") _role:string
     ) {
-        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
+        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007",1);
         const con = (await contx).con;
         const transaction = (await contx).tx;
         //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));
@@ -358,7 +368,7 @@ export class SysController {
     async clearRoleContract(
       @BodyParam("account") _account:string
     ) {
-        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007");
+        const contx = this.getConTx("RoleManager.abi","0xffffffffffffffffffffffffffffffffff020007",1);
         const con = (await contx).con;
         const transaction = (await contx).tx;
         //const role_bytes = web3.utils.hexToBytes(web3.utils.utf8ToHex(_role));

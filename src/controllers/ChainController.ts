@@ -69,27 +69,6 @@ export class ChainController {
     @Post('/getlogs')
     @ContentType("application/json")
     async getLogs(@BodyParam("abi") abi : any,@BodyParam("filter") filter : any){
-        // const abi = [
-        //     {
-        //       indexed: false,
-        //       name: '_sender',
-        //       type: 'address',
-        //     },
-        //     {
-        //       indexed: false,
-        //       name: '_text',
-        //       type: 'string',
-        //     },
-        //     {
-        //       indexed: true,
-        //       name: '_time',
-        //       type: 'uint256',
-        //     },
-        //   ]
-        //   const filter = {
-        //     address: '0x35bD452c37d28becA42097cFD8ba671C8DD430a1',
-        //     fromBlock: '0x0',
-        //   }
        let logs =  await this.peer.base.getLogs(filter, abi);
        return logs
     }

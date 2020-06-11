@@ -9,12 +9,64 @@ import * as web3 from 'web3-utils';
 @JsonController("/personal")
 export class Users {
     peer: any;
+    privateKey:string;
+    from:string;
+    remote:boolean;
     constructor() {
         let SDK = new Peer.Peer();
         this.peer = SDK.peer;
+        this.remote = SDK.remote;
+        if (this.remote == true){
+          this.privateKey = config.get('adminPrivateKey').toString();
+          this.from = config.get('adminAddress').toString();
+        }else{
+          this.privateKey = config.get('remotePrivateKey').toString();
+          this.from = config.get('remoteAddress').toString();
+        }
         logger.info(`had connected on peer : ${config.get('Peer.Url').toString()}`);
     }
 
+    async getTx(){
+      const metaData = await this.peer.base.getMetaData();
+      logger.info(`metaData : ${JSON.stringify(metaData)}`);
+      const blockNumber = await this.peer.base.getBlockNumber();
+      const transaction = {
+        from: this.from,
+        privateKey:this.privateKey,
+        nonce: 999999,
+        quota: 999999,
+        version: metaData.version,
+        validUntilBlock: blockNumber+30,
+        value: '0x0',
+        cryptoTx:1,
+      };
+      return transaction;
+    }
+
+    async getConTx(abi:string,addr:string){
+      // logger.info(`contractname : ${contractname}`);
+      const contractPath = path.join("./contract",abi);
+      // logger.info(`contractinfo : ${fs.readFileSync(contractPath).toString()}`);
+      const abiJson = JSON.parse(fs.readFileSync(contractPath).toString());
+      // logger.info(`contractinfo : ${abiJson}`);
+      const con = new this.peer.base.Contract(abiJson, addr);
+      
+      const metaData = await this.peer.base.getMetaData();
+      logger.info(`metaData : ${JSON.stringify(metaData)}`);
+      const blockNumber = await this.peer.base.getBlockNumber();
+      const transaction = {
+        from: this.from,
+        privateKey:this.privateKey,
+        nonce: 999999,
+        quota: 999999,
+        version: metaData.version,
+        validUntilBlock: blockNumber+30,
+        value: '0x0',
+        cryptoTx:1,
+      };
+      return {"con":con,"tx":transaction};
+    }
+    
     async getTransaction(abiName:String,addr :String){
         const contractPath = path.join("./contract",abiName);
         const abiJson = JSON.parse(fs.readFileSync(contractPath).toString());
@@ -64,7 +116,9 @@ export class Users {
     async createAddress(@BodyParam("password") password: string) {
         let result = await this.peer.base.accounts.create(password);
         logger.info(`create address : ${JSON.stringify(result)}`);
-        return {"address":result.address,"privateKey":result.privateKey}; 
+        let account = await this.peer.base.accounts.privateKeyToAccount(result.privateKey,1);
+        logger.info(`create sm2 address : ${JSON.stringify(account)}`);
+        return {"address":account.address,"privateKey":result.privateKey}; 
     }
 
     @Post('/unlock')
