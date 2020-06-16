@@ -24,7 +24,8 @@ export class DemoController {
           this.privateKey = config.get('adminPrivateKeySm2').toString();
           this.from = config.get('adminAddressSm2').toString();
           // this.addr = "0xB4482582746089254531F8fE0AE8EfeeAd29899b";
-          this.addr = "0x79FC95dA8773A690B0c14498Fd236D14372b6657";
+          // this.addr = "0x79FC95dA8773A690B0c14498Fd236D14372b6657";
+          this.addr = "0x88F9aD25805927Ee796514CB994C33fA0b225B93";
         }else{
           this.privateKey = config.get('remotePrivateKey').toString();
           this.from = config.get('remoteAddress').toString();
@@ -98,7 +99,7 @@ export class DemoController {
         @BodyParam("from") from:string){
       if (privatekey == ""){
         privatekey = this.privateKey;
-          from = this.from;
+        from = this.from;
       }
       const contx = this.getConTx(this.abi,this.addr,privatekey,from);
       const con = (await contx).con;
