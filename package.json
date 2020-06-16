@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "check": "npm-check --skip-unused",
-    "start": "node ./dist/index.js",
+    "start": "npm run clean && npm run build && node ./dist/index.js",
     "dev": "npm run clean && npm run watch && nodemon ./dist/index.js",
     "debug": "npm run clean && npm run watch && node-debug ./index.js",
     "clean": "./node_modules/rimraf/bin.js dist",
