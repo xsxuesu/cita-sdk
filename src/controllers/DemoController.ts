@@ -1,4 +1,4 @@
-import { Get,Post,Param,BodyParam, JsonController,ContentType} from 'routing-controllers';
+import { Post,UploadedFile,BodyParam, JsonController,ContentType} from 'routing-controllers';
 import * as Peer from '../config/Peer';
 import * as config from 'config';
 import { logger } from '../common/logging';
@@ -60,6 +60,12 @@ export class DemoController {
         return {"con":con,"tx":transaction};
       }
     
+      @Post("/files")
+      saveFile(@UploadedFile("fileName") file: any) {
+        return {"success":true};
+      }
+
+
       @Post('/setstorage')
       @ContentType("application/json")
       async setStorage(
@@ -97,7 +103,10 @@ export class DemoController {
         @BodyParam("weight") _w:string,
         @BodyParam("privatekey") privatekey:string,
         @BodyParam("from") from:string){
+          console.log(privatekey);
+          console.log(from);
       if (privatekey == ""){
+        console.log(privatekey);
         privatekey = this.privateKey;
         from = this.from;
       }

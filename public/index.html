@@ -12,7 +12,7 @@
   <!-- CSS only -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
     integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.0.9/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
   <!-- JS, Popper.js, and jQuery -->
   <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
   <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script> -->
@@ -22,6 +22,7 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
     integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous">
   </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.0.9/js/fileinput.min.js"></script>
   <script src="notify.js"></script>
   <meta name="theme-color" content="#563d7c">
   <style>
@@ -47,20 +48,20 @@
   <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
     <h5 class="my-0 mr-md-auto font-weight-normal">欧冶区块链演示界面</h5>
     <nav class="my-2 my-md-0 mr-md-3">
-      <a class="p-2 text-dark" href="#">账号生成</a>
-      <a class="p-2 text-dark" href="#">权限设置</a>
-      <a class="p-2 text-dark" href="#">入厂信息存证</a>
-      <a class="p-2 text-dark" href="#">入厂图片存证</a>
-      <a class="p-2 text-dark" href="#">质检存证</a>
-      <a class="p-2 text-dark" href="#">出厂信息存证</a>
-      <a class="p-2 text-dark" href="#">出厂图片存证</a>
-      <a class="p-2 text-dark" href="#">合同图片存证</a>
-      <a class="p-2 text-dark" href="#">转账存证</a>
-      <a class="p-2 text-dark" href="#">取证</a>
+      <a class="p-2 text-dark" href="#addrSection">账号生成</a>
+      <a class="p-2 text-dark" href="#rightSection">权限设置</a>
+      <a class="p-2 text-dark" href="#inSection">入厂信息存证</a>
+      <a class="p-2 text-dark" href="#inpicSection">入厂图片存证</a>
+      <a class="p-2 text-dark" href="#checkSection">质检信息存证</a>
+      <a class="p-2 text-dark" href="#contractSection">合同图片存证</a>
+      <a class="p-2 text-dark" href="#fundSection">资金信息存证</a>
+      <a class="p-2 text-dark" href="#outSection">出厂信息存证</a>
+      <a class="p-2 text-dark" href="#outpicSection">出厂图片存证</a>
+      <a class="p-2 text-dark" href="#getSection">取证</a>
     </nav>
   </div>
 
-  <div class="container">
+  <div id="addrSection" class="container">
     <div class="row card-deck">
       <div class="card  shadow-sm">
         <div class="card-header">
@@ -72,12 +73,14 @@
           <label for="prikey">私钥</label>
           <input type="text" class="form-control" id="prikey" placeholder="" value="" required>
           <label for="btnaccount"></label>
+          
           <button type="button" id="btnaccount" onclick="getAddress()"
             class="col-sm-4 col-md-2 btn btn-lg btn-block btn-outline-primary">生成账号</button>
         </div>
       </div>
     </div>
-
+  </div>
+  <div id="rightSection" class="container">
     <div class="row card-deck">
       <div class="card  shadow-sm">
         <div class="card-header">
@@ -116,6 +119,9 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div id="inSection" class="container">
     <div class="row card-deck">
       <div class="card  shadow-sm">
         <div class="card-header">
@@ -166,6 +172,9 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div id="inpicSection" class="container">
     <!--------------------入厂图片存证----------------------------->
     <div class="row card-deck">
       <div class="card  shadow-sm">
@@ -174,20 +183,23 @@
         </div>
         <div class="card-body">
 
-        <label for="out_pic">入厂照片hash</label>
-       
-        <div class="input-group">
-            <input type="text" class="form-control"  id="in_pic" placeholder="">
-            <span class="input-group-btn">
-              <button class="btn btn-default" onclick="sethash('in')" type="button">生成照片hash</button>
-            </span>
-        </div>
-        <label for="btnsetinfo"></label>
-        <button type="button" id="btnsetinfo" onclick="setEntryPic()" class="col-sm-4 col-md-2 btn btn-lg btn-block btn-outline-primary">入厂图片存证</button>
+          <label for="out_pic">入厂照片</label>
+          <input id="input-pic1" onchange="sethash('in')" name="input-pic1" type="file" data-show-upload="false" data-show-remove="false"  class="file" data-show-preview="false">
+          <label for="out_pic">入厂照片hash</label>
+          <div class="input-group">
+            <input type="text" class="form-control" id="in_pic" placeholder="">
+          </div>
+          <label for="btnsetinfo"></label>
+          <button type="button" id="btnsetinfo" onclick="setEntryPic()"
+            class="col-sm-4 col-md-2 btn btn-lg btn-block btn-outline-primary">入厂图片存证</button>
         </div>
       </div>
     </div>
-    <!--------------------质检信息存证----------------------------->
+  </div>
+
+
+  <!--------------------质检信息存证----------------------------->
+  <div id="checkSection" class="container">
     <div class="row card-deck">
       <div class="card  shadow-sm">
         <div class="card-header">
@@ -206,36 +218,42 @@
               <input type="text" class="form-control" id="qclevel" placeholder="" value="" required>
             </div>
           </div>
-      
-        <label for="btnsetinfo"></label>
-        <button type="button" id="btnsetqc" onclick="setQc()" class="col-sm-4 col-md-2 btn btn-lg btn-block btn-outline-primary">质检信息存证</button>
+
+          <label for="btnsetinfo"></label>
+          <button type="button" id="btnsetqc" onclick="setQc()"
+            class="col-sm-4 col-md-2 btn btn-lg btn-block btn-outline-primary">质检信息存证</button>
         </div>
       </div>
     </div>
+  </div>
 
-    <!--------------------合同信息存证----------------------------->
+
+  <!--------------------合同信息存证----------------------------->
+  <div id="contractSection" class="container">
     <div class="row card-deck">
       <div class="card  shadow-sm">
         <div class="card-header">
           <h4 class="my-0 font-weight-normal">合同信息存证</h4>
         </div>
         <div class="card-body">
-
+          <label for="out_pic">合同文本</label>
+          <input id="input-contract1" onchange="sethash('contract')" name="input-contract1" type="file" data-show-upload="false" data-show-remove="false"  class="file" data-show-preview="false">
+          <label for="out_pic">合同文本hash</label>
           <div class="input-group">
-            <input type="text" class="form-control"  id="contracthash" placeholder="">
-            <span class="input-group-btn">
-              <button class="btn btn-default" onclick="sethash('contract')" type="button">生成合同hash</button>
-            </span>
-        </div>
-      
-        <label for="btnsetinfo"></label>
-        <button type="button" id="btnsetqc" onclick="setContract()" class="col-sm-4 col-md-2 btn btn-lg btn-block btn-outline-primary">合同信息存证</button>
+            <input type="text" class="form-control" id="contracthash" placeholder="">
+          </div>
+          <label for="btnsetinfo"></label>
+          <button type="button" id="btnsetqc" onclick="setContract()"
+            class="col-sm-4 col-md-2 btn btn-lg btn-block btn-outline-primary">合同信息存证</button>
         </div>
       </div>
     </div>
+  </div>
 
 
-    <!--------------------资金信息存证----------------------------->
+
+  <!--------------------资金信息存证----------------------------->
+  <div id="fundSection" class="container">
     <div class="row card-deck">
       <div class="card  shadow-sm">
         <div class="card-header">
@@ -254,21 +272,25 @@
               <input type="text" class="form-control" id="fundvalue" placeholder="" value="" required>
             </div>
           </div>
+
+          <label for="out_pic">转账流水</label>
+          <input id="input-fund1" onchange="sethash('fund')" name="input-fund1" type="file" data-show-upload="false" data-show-remove="false"  class="file" data-show-preview="false">
           <label for="out_pic">转账流水hash</label>
           <div class="input-group">
-            <input type="text" class="form-control"  id="fundhash" placeholder="">
-            <span class="input-group-btn">
-              <button class="btn btn-default" onclick="sethash('fund')" type="button">生成转账hash</button>
-            </span>
-        </div>
-        <label for="btnsetinfo"></label>
-        <button type="button" id="btnsetqc" onclick="setFund()" class="col-sm-4 col-md-2 btn btn-lg btn-block btn-outline-primary">转账信息存证</button>
+            <input type="text" class="form-control" id="fundhash" placeholder="">
+          </div>
+          <label for="btnsetinfo"></label>
+          <button type="button" id="btnsetqc" onclick="setFund()"
+            class="col-sm-4 col-md-2 btn btn-lg btn-block btn-outline-primary">转账信息存证</button>
         </div>
       </div>
     </div>
+  </div>
 
 
-    <!--------------------出厂信息存证----------------------------->
+
+  <!--------------------出厂信息存证----------------------------->
+  <div id="outSection" class="container">
     <div class="row card-deck">
       <div class="card  shadow-sm">
         <div class="card-header">
@@ -287,48 +309,189 @@
               <input type="text" class="form-control" id="out_weight" placeholder="" value="" required>
             </div>
           </div>
-        <label for="btnsetinfo"></label>
-        <button type="button" id="btnsetqc" onclick="setOut()" class="col-sm-4 col-md-2 btn btn-lg btn-block btn-outline-primary">出厂信息存证</button>
+          <label for="btnsetinfo"></label>
+          <button type="button" id="btnsetqc" onclick="setOut()"
+            class="col-sm-4 col-md-2 btn btn-lg btn-block btn-outline-primary">出厂信息存证</button>
         </div>
       </div>
     </div>
+  </div>
 
-     <!--------------------出厂图片信息存证----------------------------->
-     <div class="row card-deck">
+
+  <!--------------------出厂图片信息存证----------------------------->
+  <div id="outpicSection" class="container">
+    <div class="row card-deck">
       <div class="card  shadow-sm">
         <div class="card-header">
           <h4 class="my-0 font-weight-normal">出厂图片存证</h4>
         </div>
         <div class="card-body">
-
+          <label for="out_pic">出厂图片</label>
+          <input id="input-out1" onchange="sethash('out')" name="input-out1" type="file" data-show-upload="false" data-show-remove="false"  class="file" data-show-preview="false">
+          <label for="out_pic">出厂图片hash</label>
           <div class="input-group">
-            <input type="text" class="form-control"  id="outhash" placeholder="">
-            <span class="input-group-btn">
-              <button class="btn btn-default" onclick="sethash('out')" type="button">生成出厂图片hash</button>
-            </span>
-        </div>
-      
-        <label for="btnsetinfo"></label>
-        <button type="button" id="btnsetqc" onclick="setOutPic()" class="col-sm-4 col-md-2 btn btn-lg btn-block btn-outline-primary">出厂图片存证</button>
+            <input type="text" class="form-control" id="outhash" placeholder="">
+          </div>
+          <label for="btnsetinfo"></label>
+          <button type="button" id="btnsetqc" onclick="setOutPic()"
+            class="col-sm-4 col-md-2 btn btn-lg btn-block btn-outline-primary">出厂图片存证</button>
         </div>
       </div>
     </div>
+  </div>
 
+
+  <!--------------------取证----------------------------->
+  <div id="getSection" class="container">
     <div class="row card-deck">
       <div class="card  shadow-sm">
         <div class="card-header">
-          <h4 class="my-0 font-weight-normal">取证</h4>
+          <h4 class="my-0 font-weight-normal">取证结果</h4>
         </div>
         <div class="card-body">
-          <label for="result">取证结果</label>
-          <textarea class="form-control" id="result" rows="8"></textarea>
+          <div class="row">
+            <div class="col-md-6 mb-6">
+              <label for="inFactoryTime">入厂时间</label>
+              <input type="text" class="form-control" id="inFactoryTime" placeholder="" value="" required>
+            </div>
+            <div class="col-md-6 mb-6">
+              <label for="carNo">入厂车牌</label>
+              <input type="text" class="form-control" id="carNo" placeholder="" value="" required>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-6">
+              <label for="carCert">行驶证</label>
+              <input type="text" class="form-control" id="carCert" placeholder="" value="" required>
+            </div>
+            <div class="col-md-6 mb-6">
+              <label for="driver">驾驶员</label>
+              <input type="text" class="form-control" id="driver" placeholder="" value="" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-6">
+              <label for="driverCert">驾驶证</label>
+              <input type="text" class="form-control" id="driverCert" placeholder="" value="" required>
+            </div>
+            <div class="col-md-6 mb-6">
+              <label for="inWeight">重车重量</label>
+              <input type="text" class="form-control" id="inWeight" placeholder="" value="" required>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-12 mb-12">
+              <label for="inPicHash">入厂图片hash</label>
+              <input type="text" class="form-control" id="inPicHash" placeholder="" value="" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <label for="inPicHash_check">验证入厂图片</label>
+              <!-- <input type="text" class="form-control" id="inPicHash_check" placeholder="" value="" required> -->
+              <div class="input-group">
+                <input type="text" id="inPicHash_check" class="form-control" placeholder="生成图片hash...">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" onclick="checkhash('in')" type="button">验证入厂图片</button>
+                </span>
+              </div>
+            </div>
+
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-6">
+              <label for="qcLevel">质量等级</label>
+              <input type="text" class="form-control" id="qcLevel" placeholder="" value="" required>
+            </div>
+            <div class="col-md-6 mb-6">
+              <label for="qcPerson">质检人</label>
+              <input type="text" class="form-control" id="qcPerson" placeholder="" value="" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-6">
+              <label for="fundId">转账流水</label>
+              <input type="text" class="form-control" id="fundId" placeholder="" value="" required>
+            </div>
+            <div class="col-md-6 mb-6">
+              <label for="fundValue">转账金额</label>
+              <input type="text" class="form-control" id="fundValue" placeholder="" value="" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-10 mb-10">
+              <label for="fundPicHash">转账hash</label>
+              <input type="text" class="form-control" id="fundPicHash" placeholder="" value="" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <label for="inPicHash_check">验证转账</label>
+              <!-- <input type="text" class="form-control" id="inPicHash_check" placeholder="" value="" required> -->
+              <div class="input-group">
+                <input type="text" id="fundPicHash_check" class="form-control" placeholder="生成图片hash...">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" onclick="checkhash('in')" type="button">验证转账</button>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-10 mb-10">
+              <label for="contractHash">合同hash</label>
+              <input type="text" class="form-control" id="contractHash" placeholder="" value="" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <label for="inPicHash_check">验证合同</label>
+              <!-- <input type="text" class="form-control" id="inPicHash_check" placeholder="" value="" required> -->
+              <div class="input-group">
+                <input type="text" id="contractHash_check" class="form-control" placeholder="生成图片hash...">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" onclick="checkhash('contract')" type="button">验证合同</button>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-6">
+              <label for="outFactoryTime">出厂时间</label>
+              <input type="text" class="form-control" id="outFactoryTime" placeholder="" value="" required>
+            </div>
+            <div class="col-md-6 mb-6">
+              <label for="outWeight">空车重量</label>
+              <input type="text" class="form-control" id="outWeight" placeholder="" value="" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-10 mb-10">
+              <label for="outPicHash">出厂图片hash</label>
+              <input type="text" class="form-control" id="outPicHash" placeholder="" value="" required>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <label for="inPicHash_check">验证出厂图片</label>
+              <!-- <input type="text" class="form-control" id="inPicHash_check" placeholder="" value="" required> -->
+              <div class="input-group">
+                <input type="text" id="outPicHash_check" class="form-control" placeholder="生成图片hash...">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" onclick="checkhash('out')" type="button">验证出厂图片</button>
+                </span>
+              </div>
+            </div>
+          </div>
           <label for="btngetinfo"></label>
           <button type="button" id="btngetinfo" onclick="getInfo()"
             class="col-sm-4 col-md-2 btn btn-lg btn-block btn-outline-primary">取证</button>
+
         </div>
       </div>
     </div>
-
   </div>
 
   <footer class="pt-4 my-md-5 pt-md-5 border-top">
@@ -350,10 +513,22 @@
       $("#in_pic").val(SHA256($("#id_number").val() + "in"));
     } else if (v == "fund") {
       $("#fundhash").val(SHA256($("#id_number").val() + "fund"));
-    }else if (v == "contract"){
+    } else if (v == "contract") {
       $("#contracthash").val(SHA256($("#id_number").val() + "contract"));
-    }else{
+    } else {
       $("#outhash").val(SHA256($("#id_number").val() + "out"));
+    }
+  }
+
+  function checkhash(v) {
+    if (v == "in") {
+      $("#inPicHash_check").val(SHA256($("#id_number").val() + "in"));
+    } else if (v == "fund") {
+      $("#fundPicHash_check").val(SHA256($("#id_number").val() + "fund"));
+    } else if (v == "contract") {
+      $("#contractHash_check").val(SHA256($("#id_number").val() + "contract"));
+    } else {
+      $("#outPicHash_check").val(SHA256($("#id_number").val() + "out"));
     }
   }
 
@@ -389,7 +564,7 @@
 
 
   function setEntry() {
-    
+
     $.ajax({
       type: "POST",
       url: "/demo/entryfactory",
@@ -418,6 +593,7 @@
       }
     });
   }
+
   function setEntryPic() {
     $.ajax({
       type: "POST",
@@ -442,6 +618,7 @@
       }
     });
   }
+
   function setContract() {
     $.ajax({
       type: "POST",
@@ -466,6 +643,7 @@
       }
     });
   }
+
   function setQc() {
     $.ajax({
       type: "POST",
@@ -491,6 +669,7 @@
       }
     });
   }
+
   function setOutPic() {
     $.ajax({
       type: "POST",
@@ -515,6 +694,7 @@
       }
     });
   }
+
   function setFund() {
     $.ajax({
       type: "POST",
@@ -577,8 +757,22 @@
         "id": $("#id_number").val()
       },
       success: function (msg) {
-        console.log(msg);
-        $("#result").val(JSON.stringify(msg));
+        $("#inFactoryTime").val(msg.inFactoryTime);
+        $("#carNo").val(msg.carNo);
+        $("#carCert").val(msg.carCert);
+        $("#driver").val(msg.driver);
+        $("#driverCert").val(msg.driverCert);
+        $("#inWeight").val(msg.inWeight);
+        $("#inPicHash").val(msg.inPicHash);
+        $("#qcLevel").val(msg.qcLevel);
+        $("#qcPerson").val(msg.qcPerson);
+        $("#outFactoryTime").val(msg.outFactoryTime);
+        $("#outPicHash").val(msg.outPicHash);
+        $("#outWeight").val(msg.outWeight);
+        $("#fundPicHash").val(msg.fundPicHash);
+        $("#fundId").val(msg.fundId);
+        $("#fundValue").val(msg.fundValue);
+        $("#contractHash").val(msg.contractHash);
       },
       error: function () {
         alert("错误");
