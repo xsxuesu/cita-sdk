@@ -65,7 +65,7 @@
     "@types/supertest": "^2.0.3",
     "@types/winston": "^2.2.25-alpha",
     "chai": "^3.5.0",
-    "mocha": "^2.5.3",
+    "mocha": "^10.1.0",
     "rimraf": "^2.5.2",
     "supertest": "^3.0.0",
     "tslint": "^3.12.0-dev.2",
