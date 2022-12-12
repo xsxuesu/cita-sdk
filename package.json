@@ -36,7 +36,7 @@
     "body-parser": "^1.15.2",
     "config": "^1.21.0",
     "cors": "^2.7.1",
-    "express": "^4.14.0",
+    "express": "^4.17.3",
     "express-jwt": "^5.3.3",
     "js-yaml": "^3.6.1",
     "neo4j-driver": "1.1.0-M01",
